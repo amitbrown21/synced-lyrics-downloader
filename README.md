@@ -10,7 +10,27 @@ A desktop GUI app for downloading synced (`.lrc`) lyrics for your local music li
 
 ## Screenshots
 
-![Synced Lyrics Downloader](https://raw.githubusercontent.com/type0dev/synced-lyrics-downloader/main/lyrics%20download%20screenshot.png)
+**First run** — the crate before a folder is opened.
+
+![First run](docs/screenshots/first-run.png)
+
+**Main window** — artist dividers on the left, album spines behind them, and the selected record's tracklist stamped with its lyric state.
+
+![Synced Lyrics Downloader — main window](docs/screenshots/main-window.png)
+
+**Settings** — provider priority, quality filters and language.
+
+![Settings dialog](docs/screenshots/dialog-options.png)
+
+**Custom Search** — override the query for tracks the providers get wrong.
+
+![Custom search dialog](docs/screenshots/dialog-custom-search.png)
+
+**About** — version and project links.
+
+![About dialog](docs/screenshots/dialog-about.png)
+
+*Captured on Windows against the synthetic demo library in `.impeccable/fixtures`.*
 
 ---
 
@@ -22,9 +42,9 @@ A desktop GUI app for downloading synced (`.lrc`) lyrics for your local music li
 - **Smart scanning** — scan selection for missing lyrics, download only what's missing
 - **Custom Search** — override the search query for hard-to-find tracks
 - **Auto-upgrade** — detects plain `.lrc` files and offers to find a synced version
-- **Track icons** — ✅ synced · 📄 plain · ⚠️ incomplete · ❌ none
-- **Artist/Album icons** — ✅ all · 🟨 some · ⬜ none (shown after scanning)
-- **Dark and Light themes**
+- **State marks, drawn not emoji** — ✅ synced · 📄 plain · ⚠️ incomplete · ❌ missing, each a distinct vector silhouette so the state survives greyscale and colour-blindness
+- **Folder completeness** — ✅ complete · 🟨 partly complete · ⬜ empty (shown after scanning)
+- **One committed theme** — "The Crate": kraft board on a near-black crate ground
 - **Keyboard shortcuts** — `Ctrl+D` download · `Escape` cancel · `F5` refresh
 - **Double-click a track** to open Custom Search instantly
 - **Remembers window size and position** between sessions
@@ -39,6 +59,7 @@ A desktop GUI app for downloading synced (`.lrc`) lyrics for your local music li
 ```
 Python 3.10+      →  https://python.org/downloads
 syncedlyrics      →  pip install syncedlyrics
+customtkinter     →  pip install customtkinter
 tkinter           →  included with standard Python install
 ```
 
@@ -46,6 +67,7 @@ tkinter           →  included with standard Python install
 ```
 Python 3.10+      →  sudo apt install python3
 syncedlyrics      →  pip install syncedlyrics
+customtkinter     →  pip install customtkinter
 tkinter           →  sudo apt install python3-tk
 ```
 
@@ -55,15 +77,62 @@ tkinter           →  sudo apt install python3-tk
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/type0dev/synced-lyrics-downloader.git
+git clone https://github.com/amitbrown21/synced-lyrics-downloader.git
 cd synced-lyrics-downloader
 
-# 2. Install the only dependency
-pip install syncedlyrics
+# 2. Install dependencies
+pip install -r requirements.txt
 
 # 3. Run
 python lyrics_downloader_ultimate.py
 ```
+
+---
+
+## Project Structure
+
+The application is split so the engine can run without a GUI:
+
+```
+lyrics_downloader_ultimate.py   runnable entry point (same command as before)
+lyricsdl/
+  config.py                     settings, provider lists, defaults
+  library.py                    folder scanning, lyric-state detection, completeness cache
+  providers.py                  provider fetching, CJK / non-ASCII filters
+  downloader.py                 the download engine — thread-safe, no UI imports
+  ui/
+    theme.py                    design tokens (colours, metrics, font resolution)
+    widgets.py                  crate widgets: canvas lists, drawn state marks, silk buttons
+    dialogs.py                  Options, About, Custom Search, upgrade prompt
+    app.py                      main window: selection, background jobs, shortcuts
+tests/
+  test_library.py               lyric parsing and state classification
+  test_downloader.py            engine failure paths (runs offline)
+docs/screenshots/               shipping screenshots
+DESIGN.md                       the visual system
+```
+
+The screenshots are generated, not hand-cropped — rerun them after UI changes:
+
+```bash
+python .impeccable/tools/capture.py    # writes .impeccable/review/, then copy into docs/screenshots/
+```
+
+`lyricsdl/` imports no GUI code outside `lyricsdl/ui/`, so scanning and
+downloading can be scripted or tested headlessly:
+
+```python
+from lyricsdl import downloader, library
+
+missing = library.find_missing(["D:/Music"])
+downloader.download_targets(
+    missing, music_dir="D:/Music",
+    reporter=downloader.Reporter(), cancel=lambda: False,
+)
+```
+
+Run the self-checks with `python tests/test_library.py` and
+`python tests/test_downloader.py`.
 
 ---
 
@@ -93,11 +162,11 @@ python lyrics_downloader_ultimate.py
 
 ## Settings
 
-Open **Settings → Options** to configure:
+Open **Settings** to configure:
 
 | Option | Description |
 |--------|-------------|
-| Provider priority | Drag to reorder which providers are tried first |
+| Provider priority | Use **Up** / **Down** to reorder which providers are tried first |
 | Enable/disable providers | Turn off providers that give bad results |
 | Allow plain fallback | Enable Genius for plain text lyrics |
 | Auto-upgrade plain → synced | Detect plain `.lrc` files and offer synced upgrade |
@@ -170,7 +239,9 @@ Settings are saved automatically to `lyrics_gui_config.json` in the same folder 
 
 ## Built With
 
-- [Python](https://python.org) + [tkinter](https://docs.python.org/3/library/tkinter.html) — GUI
+- [Python](https://python.org) — runtime
+- [tkinter](https://docs.python.org/3/library/tkinter.html) — windowing, canvas-rendered crate lists
+- [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) — themed dialogs, scrollbars and controls
 - [syncedlyrics](https://github.com/moehmeni/syncedlyrics) — lyrics fetching library
 
 ---

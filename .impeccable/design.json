@@ -1,0 +1,551 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-02T12:01:35.621708Z",
+  "title": "Design System: Synced Lyrics Downloader",
+  "extensions": {
+    "colorMeta": {
+      "crate-ground": {
+        "role": "neutral",
+        "displayName": "Crate Ground",
+        "canonical": "#211F1D",
+        "tonalRamp": [
+          "#0D0B09",
+          "#272523",
+          "#44413F",
+          "#63615E",
+          "#84827F",
+          "#A7A4A2",
+          "#CBC8C6",
+          "#F1EEEB"
+        ]
+      },
+      "crate-recess": {
+        "role": "neutral",
+        "displayName": "Crate Recess",
+        "canonical": "#191716",
+        "tonalRamp": [
+          "#0D0B0A",
+          "#272423",
+          "#444140",
+          "#63615F",
+          "#848280",
+          "#A7A4A3",
+          "#CBC8C7",
+          "#F1EEEC"
+        ]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Crate Panel",
+        "canonical": "#2B2A28",
+        "tonalRamp": [
+          "#0C0B09",
+          "#262523",
+          "#434240",
+          "#62615F",
+          "#838280",
+          "#A6A5A2",
+          "#CAC9C6",
+          "#F0EEEC"
+        ]
+      },
+      "panel-raised": {
+        "role": "neutral",
+        "displayName": "Panel Raised",
+        "canonical": "#343230",
+        "tonalRamp": [
+          "#0C0B09",
+          "#272523",
+          "#44423F",
+          "#63615E",
+          "#84827F",
+          "#A7A4A2",
+          "#CBC9C6",
+          "#F0EEEB"
+        ]
+      },
+      "edge": {
+        "role": "neutral",
+        "displayName": "Edge Hairline",
+        "canonical": "#3A3835",
+        "tonalRamp": [
+          "#0D0B08",
+          "#272522",
+          "#44423F",
+          "#63615E",
+          "#84827E",
+          "#A7A5A1",
+          "#CBC9C5",
+          "#F1EEEA"
+        ]
+      },
+      "kraft": {
+        "role": "secondary",
+        "displayName": "Kraft Stock",
+        "canonical": "#E8E2D2",
+        "tonalRamp": [
+          "#0F0B02",
+          "#292518",
+          "#474235",
+          "#666153",
+          "#878273",
+          "#AAA596",
+          "#CFC9B9",
+          "#F4EEDE"
+        ]
+      },
+      "kraft-shade": {
+        "role": "secondary",
+        "displayName": "Kraft Shade",
+        "canonical": "#D9D1BC",
+        "tonalRamp": [
+          "#100A00",
+          "#2B2414",
+          "#484130",
+          "#68614E",
+          "#89826E",
+          "#ACA590",
+          "#D1C9B4",
+          "#F6EED9"
+        ]
+      },
+      "kraft-edge": {
+        "role": "neutral",
+        "displayName": "Kraft Rule",
+        "canonical": "#BCB29A",
+        "tonalRamp": [
+          "#110A00",
+          "#2C2410",
+          "#4A412C",
+          "#69604B",
+          "#8B826B",
+          "#AEA48D",
+          "#D3C8B0",
+          "#F8EED5"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Board Ink",
+        "canonical": "#1C1A17",
+        "tonalRamp": [
+          "#0D0B08",
+          "#272522",
+          "#44423E",
+          "#63615D",
+          "#84827E",
+          "#A7A5A1",
+          "#CBC9C4",
+          "#F1EEEA"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Ink Soft",
+        "canonical": "#5A5344",
+        "tonalRamp": [
+          "#100A01",
+          "#2B2417",
+          "#484133",
+          "#686051",
+          "#898271",
+          "#ACA494",
+          "#D0C8B7",
+          "#F6EEDC"
+        ]
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Ink Faint",
+        "canonical": "#8B8474",
+        "tonalRamp": [
+          "#100A02",
+          "#2A2417",
+          "#484133",
+          "#676151",
+          "#898272",
+          "#ACA494",
+          "#D0C8B7",
+          "#F6EEDC"
+        ]
+      },
+      "silkscreen-red": {
+        "role": "primary",
+        "displayName": "Silkscreen Tab Red",
+        "canonical": "#C8452F",
+        "tonalRamp": [
+          "#1E0100",
+          "#4B0600",
+          "#7B1504",
+          "#AD2A14",
+          "#D5513A",
+          "#FD765D",
+          "#FEB4A5",
+          "#FFE9E4"
+        ]
+      },
+      "silkscreen-red-deep": {
+        "role": "primary",
+        "displayName": "Silkscreen Red Deep",
+        "canonical": "#A93622",
+        "tonalRamp": [
+          "#1E0100",
+          "#4A0700",
+          "#7C1200",
+          "#A73420",
+          "#CE5843",
+          "#F67C65",
+          "#FFB4A4",
+          "#FFE9E4"
+        ]
+      },
+      "silkscreen-red-soft": {
+        "role": "primary",
+        "displayName": "Silkscreen Red Soft",
+        "canonical": "#E2836C",
+        "tonalRamp": [
+          "#1D0200",
+          "#480C01",
+          "#75200B",
+          "#9A422E",
+          "#C0644F",
+          "#E78770",
+          "#FFB4A1",
+          "#FFE9E4"
+        ]
+      },
+      "filed-green": {
+        "role": "tertiary",
+        "displayName": "Filed Green",
+        "canonical": "#5C6B52",
+        "tonalRamp": [
+          "#050F00",
+          "#1D2913",
+          "#394730",
+          "#58674E",
+          "#78886E",
+          "#9BAB90",
+          "#BFD0B4",
+          "#E4F5D8"
+        ]
+      },
+      "pending-amber": {
+        "role": "tertiary",
+        "displayName": "Pending Amber",
+        "canonical": "#C08A2E",
+        "tonalRamp": [
+          "#130900",
+          "#342101",
+          "#593B01",
+          "#815808",
+          "#AC7710",
+          "#D19A41",
+          "#F7BE67",
+          "#FFECD1"
+        ]
+      },
+      "absent-grey": {
+        "role": "tertiary",
+        "displayName": "Absent Grey",
+        "canonical": "#8A8377",
+        "tonalRamp": [
+          "#0F0A03",
+          "#2A241A",
+          "#474136",
+          "#676055",
+          "#888175",
+          "#ABA498",
+          "#D0C8BB",
+          "#F5EDE0"
+        ]
+      },
+      "filed-green-ink": {
+        "role": "tertiary",
+        "displayName": "Filed Green Ink",
+        "canonical": "#3F4C38",
+        "tonalRamp": [
+          "#050E01",
+          "#1D2917",
+          "#3A4733",
+          "#586651",
+          "#798872",
+          "#9BAB94",
+          "#BFCFB7",
+          "#E4F4DC"
+        ]
+      },
+      "pending-amber-ink": {
+        "role": "tertiary",
+        "displayName": "Pending Amber Ink",
+        "canonical": "#8A5A12",
+        "tonalRamp": [
+          "#140800",
+          "#362001",
+          "#5C3902",
+          "#85560A",
+          "#A97736",
+          "#CE9A5A",
+          "#F4BE7D",
+          "#FFEBD4"
+        ]
+      },
+      "absent-grey-ink": {
+        "role": "tertiary",
+        "displayName": "Absent Grey Ink",
+        "canonical": "#6B6355",
+        "tonalRamp": [
+          "#100A02",
+          "#2B2418",
+          "#484134",
+          "#686052",
+          "#8A8173",
+          "#ADA495",
+          "#D1C8B8",
+          "#F7EDDD"
+        ]
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "Board Text",
+        "canonical": "#EDE8DC",
+        "tonalRamp": [
+          "#0E0B04",
+          "#28251C",
+          "#464238",
+          "#656157",
+          "#868277",
+          "#A9A599",
+          "#CEC9BD",
+          "#F3EEE2"
+        ]
+      },
+      "text-dim": {
+        "role": "neutral",
+        "displayName": "Text Dim",
+        "canonical": "#A79E8C",
+        "tonalRamp": [
+          "#110A01",
+          "#2B2415",
+          "#494131",
+          "#696050",
+          "#8A8170",
+          "#ADA492",
+          "#D2C8B5",
+          "#F7EDDA"
+        ]
+      },
+      "text-faint": {
+        "role": "neutral",
+        "displayName": "Text Faint",
+        "canonical": "#867E6E",
+        "tonalRamp": [
+          "#100A01",
+          "#2B2417",
+          "#484133",
+          "#686051",
+          "#898171",
+          "#ACA493",
+          "#D1C8B7",
+          "#F6EEDC"
+        ]
+      },
+      "focus": {
+        "role": "neutral",
+        "displayName": "Focus Amber",
+        "canonical": "#F0C46A",
+        "tonalRamp": [
+          "#110A00",
+          "#312201",
+          "#553E02",
+          "#7B5B0A",
+          "#A47B13",
+          "#C99E42",
+          "#EEC268",
+          "#FFECC9"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The wordmark, and nothing else."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Dialog titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Artist divider labels \u2014 the largest text inside a list."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Spines, track titles, dialog copy, status text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Pane headers, legend, every button. Condensed caps."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Track numbers, timings, counts, the log sheet, paths."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "pull-forward",
+        "value": "7px in 16ms steps, ease-out cubic, ~96ms",
+        "purpose": "The one authored moment: a selected row slides forward onto kraft to sit proud of the crate."
+      },
+      {
+        "name": "state-hover",
+        "value": "background-color .12s linear",
+        "purpose": "Row and button hover. Colour only; nothing moves, nothing fades."
+      },
+      {
+        "name": "ui-pump",
+        "value": "50ms",
+        "purpose": "Worker-thread events are drained onto the Tk main thread on a 50ms timer."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "min-window",
+        "value": "940x640",
+        "purpose": "Native desktop: the smallest window the three panes still hold. Above 1180x800 the crate absorbs the extra height."
+      }
+    ],
+    "materials": [
+      {
+        "name": "crate-board",
+        "value": "#211F1D / #191716 / #2B2A28 / #343230",
+        "purpose": "Four fixed tonal steps of one near-black board: ground, recess, panel, hover. Never more, never fewer."
+      },
+      {
+        "name": "kraft-stock",
+        "value": "#E8E2D2 / #D9D1BC / #BCB29A",
+        "purpose": "The only light material. Reserved for what the user can pick up: dividers, pulled-forward records, legend boards."
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Silk Button",
+      "kind": "button",
+      "refersTo": "silk-button-primary",
+      "description": "The action vocabulary: flat, hard-edged, condensed caps. Red is the one primary action per surface.",
+      "html": "<div class=\"ds-nav\"><button class=\"ds-btn ds-btn-primary\">DOWNLOAD SELECTION</button><button class=\"ds-btn ds-btn-secondary\">CANCEL</button><button class=\"ds-btn\" disabled>SILK DISABLED</button></div>",
+      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-nav { display:flex; gap:8px; align-items:center; }.ds-btn { font-family:'Bahnschrift SemiCondensed','Arial Narrow','Segoe UI',sans-serif; font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; height:30px; padding:0 18px; border-radius:0; border:1px solid transparent; cursor:pointer; transition:background .12s linear; }.ds-btn-primary { background:#C8452F; color:#E8E2D2; }.ds-btn-primary:hover { background:#A93622; }.ds-btn-primary:focus-visible { outline:2px solid #F0C46A; outline-offset:2px; }.ds-btn-secondary { background:#2B2A28; color:#EDE8DC; border-color:#3A3835; }.ds-btn-secondary:hover { background:#343230; }.ds-btn-secondary:focus-visible { outline:2px solid #F0C46A; outline-offset:2px; }.ds-btn[disabled] { background:#211F1D; color:#867E6E; cursor:default; }"
+    },
+    {
+      "name": "Crate Track Rows",
+      "kind": "custom",
+      "refersTo": "crate-row-track",
+      "description": "The tracklist: recessed rows ruled by a hairline, mono number and running-time slot, state mark at the right. The selected row is pulled 7px forward onto kraft.",
+      "html": "<div class=\"ds-crate\"><div class=\"ds-row\"><span class=\"ds-row__num\">01</span><span class=\"ds-row__title\">Footnote</span><span class=\"ds-row__meta\">04:12</span><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#5C6B52\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8.5\"/><path d=\"M7.2 11.2l2.6 2.6 5-5.2\"/></svg></div><div class=\"ds-row\"><span class=\"ds-row__num\">02</span><span class=\"ds-row__title\">Marginalia</span><span class=\"ds-row__meta\">02:58</span><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#8A8377\" stroke-width=\"2\" stroke-linecap=\"round\"><rect x=\"2.5\" y=\"2.5\" width=\"17\" height=\"17\"/><path d=\"M7 9h9M7 14h6\"/></svg></div><div class=\"ds-row ds-row--sel\"><span class=\"ds-row__num\">03</span><span class=\"ds-row__title\">Erratum</span><span class=\"ds-row__meta\">03:41</span><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#8A5A12\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"miter\"><path d=\"M11 2.5L20 19H2z\"/><path d=\"M11 8.5v5\"/><path d=\"M11 16.2v.1\"/></svg></div><div class=\"ds-row\"><span class=\"ds-row__num\">05</span><span class=\"ds-row__title\">Appendix</span><span class=\"ds-row__meta\">MP3</span><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#8A8377\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8.5\"/><path d=\"M6.5 15.5l9-9\"/></svg></div></div>",
+      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-crate { font-family:'Bahnschrift','Segoe UI',sans-serif; width:320px; background:#191716; padding:0; }.ds-row { display:flex; align-items:center; height:24px; font-size:11px; color:#EDE8DC; border-bottom:1px solid #3A3835; padding:0 8px; }.ds-row--sel { background:#E8E2D2; color:#1C1A17; border-bottom:none; transform:translateX(7px); }.ds-row__num { font-family:'Cascadia Mono',Consolas,monospace; font-size:9px; color:#867E6E; width:30px; }.ds-row--sel .ds-row__num { color:#5A5344; }.ds-row__title { flex:1; }.ds-row__meta { font-family:'Cascadia Mono',Consolas,monospace; font-size:9px; color:#867E6E; margin-right:18px; }.ds-row--sel .ds-row__meta { color:#5A5344; }"
+    },
+    {
+      "name": "Artist Divider",
+      "kind": "custom",
+      "refersTo": "crate-row-divider-selected",
+      "description": "A kraft board with a 26px tab at its head. Selecting it inverts the tab to silkscreen red and pulls the board forward; the folder-state mark sits at its right edge in kraft ink.",
+      "html": "<div style=\"width:340px\"><div class=\"ds-divider\"><span class=\"ds-divider__tab\">H</span><span class=\"ds-divider__name\">Halden &amp; the Low Tide</span></div><div class=\"ds-divider ds-divider--sel\"><span class=\"ds-divider__tab\">T</span><span class=\"ds-divider__name\">The Marginal Notes</span><span class=\"ds-divider__mark\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#8A5A12\" stroke-width=\"2\"><circle cx=\"11\" cy=\"11\" r=\"8.5\"/><path d=\"M11 2.5a8.5 8.5 0 000 17z\" fill=\"#8A5A12\" stroke=\"none\"/></svg></span></div></div>",
+      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-divider { display:flex; align-items:center; height:32px; background:#D9D1BC; border-bottom:1px solid #BCB29A; font-family:'Bahnschrift SemiCondensed','Arial Narrow','Segoe UI',sans-serif; }.ds-divider--sel { background:#E8E2D2; }.ds-divider__tab { width:26px; height:100%; display:flex; align-items:center; justify-content:center; background:#211F1D; color:#A79E8C; font-size:10px; font-weight:700; }.ds-divider--sel .ds-divider__tab { background:#C8452F; color:#E8E2D2; }.ds-divider__name { flex:1; padding-left:10px; font-size:12px; font-weight:700; color:#1C1A17; }.ds-divider__mark { margin-right:14px; line-height:0; }"
+    },
+    {
+      "name": "State Marks",
+      "kind": "custom",
+      "refersTo": "crate-row-track",
+      "description": "The signature: five drawn silhouettes, no emoji and no icon font. Each state is a different shape, so it survives greyscale and colour-blindness. Both inks shown.",
+      "html": "<div class=\"ds-marks\"><span class=\"ds-mark\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#5C6B52\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8.5\"/><path d=\"M7.2 11.2l2.6 2.6 5-5.2\"/></svg><span>synced</span></span><span class=\"ds-mark\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#8A8377\" stroke-width=\"2\" stroke-linecap=\"round\"><rect x=\"2.5\" y=\"2.5\" width=\"17\" height=\"17\"/><path d=\"M7 9h9M7 14h6\"/></svg><span>plain</span></span><span class=\"ds-mark\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#C08A2E\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"miter\"><path d=\"M11 2.5L20 19H2z\"/><path d=\"M11 8.5v5\"/><path d=\"M11 16.2v.1\"/></svg><span>incomplete</span></span><span class=\"ds-mark\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#8A8377\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8.5\"/><path d=\"M6.5 15.5l9-9\"/></svg><span>missing</span></span><span class=\"ds-mark\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#C08A2E\" stroke-width=\"2\"><circle cx=\"11\" cy=\"11\" r=\"8.5\"/><path d=\"M11 2.5a8.5 8.5 0 000 17z\" fill=\"#C08A2E\" stroke=\"none\"/></svg><span>partial</span></span></div><div class=\"ds-marks\" style=\"margin-top:14px\"><span class=\"ds-mark ds-mark--stock\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#3F4C38\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8.5\"/><path d=\"M7.2 11.2l2.6 2.6 5-5.2\"/></svg><span>complete</span></span><span class=\"ds-mark ds-mark--stock\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#8A5A12\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"miter\"><path d=\"M11 2.5L20 19H2z\"/><path d=\"M11 8.5v5\"/><path d=\"M11 16.2v.1\"/></svg><span>partial</span></span><span class=\"ds-mark ds-mark--stock\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#6B6355\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8.5\"/><path d=\"M6.5 15.5l9-9\"/></svg><span>empty</span></span></div>",
+      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-marks { display:flex; gap:22px; align-items:center; }.ds-mark { display:flex; flex-direction:column; gap:6px; align-items:center; font-family:'Bahnschrift SemiCondensed','Arial Narrow','Segoe UI',sans-serif; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#A79E8C; }.ds-mark--stock { color:#5A5344; }"
+    },
+    {
+      "name": "Pane Header",
+      "kind": "nav",
+      "refersTo": "pane-header",
+      "description": "Each of the three bays: a raised panel header carrying the title, a mono count and an All/Clear toggle, over the 2px silkscreen rule that makes it read as a crate bay.",
+      "html": "<div class=\"ds-pane\"><div class=\"ds-pane__head\"><span class=\"ds-pane__title\">Albums</span><span class=\"ds-pane__count\">2</span><button class=\"ds-toggle\" style=\"margin-left:auto\">ALL</button></div><div class=\"ds-pane__rule\"></div></div>",
+      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-pane { width:330px; background:#191716; }.ds-pane__head { display:flex; align-items:center; height:30px; background:#2B2A28; padding:0 12px 0 12px; gap:8px; }.ds-pane__title { font-family:'Bahnschrift SemiCondensed','Arial Narrow','Segoe UI',sans-serif; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#A79E8C; }.ds-pane__count { font-family:'Cascadia Mono',Consolas,monospace; font-size:9px; color:#867E6E; }.ds-pane__rule { height:2px; background:#C8452F; }.ds-toggle { font-family:'Bahnschrift SemiCondensed','Arial Narrow','Segoe UI',sans-serif; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; height:22px; padding:0 10px; background:transparent; color:#A79E8C; border:0; border-radius:0; cursor:pointer; }.ds-toggle:hover { background:#343230; color:#EDE8DC; }.ds-toggle:focus-visible { outline:2px solid #F0C46A; }"
+    },
+    {
+      "name": "Log Sheet",
+      "kind": "card",
+      "refersTo": "log-sheet",
+      "description": "The ruled record of a job. Fixed-height by design \u2014 it is a receipt, not a work surface. Levels are carried by mono text colour on the raised panel.",
+      "html": "<div class=\"ds-log\"><div><span class=\"ds-log__lvl\">INFO </span>Library: D:\\MUSIC</div><div><span class=\"ds-log__lvl\">STEP </span>trying synced: Lrclib</div><div><span class=\"ds-log__lvl ok\">OK   </span>Saved [Lrclib/synced]</div><div><span class=\"ds-log__lvl warn\">WARN </span>Cancel requested.</div><div><span class=\"ds-log__lvl err\">ERR  </span>Not found</div></div>",
+      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-log { width:520px; background:#2B2A28; border:1px solid #3A3835; padding:8px 12px; font-family:'Cascadia Mono',Consolas,monospace; font-size:9px; line-height:1.5; color:#CFC7B4; }.ds-log__lvl { font-weight:400; }.ds-log .ok { color:#8FBE7A; } .ds-log .warn { color:#E0B45C; }.ds-log .err { color:#E08573; } .ds-log .step { color:#9E9583; }"
+    },
+    {
+      "name": "Entry Field",
+      "kind": "input",
+      "refersTo": "entry",
+      "description": "Square, panel-filled, 1px edge stroke. Focus keeps the stroke and the caret; no glow, no ring, no colour shift \u2014 focus is not a colour event in this world.",
+      "html": "<input class=\"ds-field\" value=\"The Marginal Notes: Annotated - Marginalia\">",
+      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-field { width:340px; height:34px; background:#2B2A28; border:1px solid #3A3835; border-radius:0; color:#EDE8DC; padding:0 10px; font-size:12px; font-family:'Bahnschrift','Segoe UI',sans-serif; }.ds-field:focus { outline:none; border-color:#3A3835; }.ds-field::placeholder { color:#867E6E; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Record Crate",
+    "overview": "A music library is not a file tree; it is a crate of records you flip through. Every surface says so. Artists are kraft board dividers with a tab at the spine; albums are record spines stacked behind them; the selected record's tracklist is a ruled sheet; the job that ran is a ruled log sheet pinned below.\n\nThe world is built from two materials only: near-black crate board and kraft stock. Depth comes from three fixed tones of the dark board plus one hairline rule. Kraft is reserved for things you can pick up. The accent is silkscreen ink, and it is rationed hard.\n\nState is never carried by colour alone. Each lyric state has its own drawn geometry, stamped at the right edge of the row. Colour reinforces the shape; it never replaces it.",
+    "keyCharacteristics": [
+      "Two materials: near-black crate board and kraft stock, no third.",
+      "Hard edges everywhere \u2014 a single radius of 0.",
+      "One saturated accent (silkscreen tab red) rationed to \u22643% of a screen.",
+      "Drawn vector state marks; zero emoji, zero icon fonts, zero glyph-as-icon.",
+      "Condensed grotesque caps for anything that names or labels; mono for counts, timings and the log.",
+      "Legibility proven by pixel: body text clears 4.5:1, marks clear 3:1 on both materials."
+    ],
+    "rules": [
+      {
+        "name": "The Kraft Rule",
+        "body": "Kraft stock means pick me up: a divider you flip, a record pulled forward, a printed legend board. It is never a background, never a container, never a section fill.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two-Inks Rule",
+        "body": "The three state colours exist in two inks. On the dark board use Filed Green / Pending Amber / Absent Grey; on kraft use Filed Green Ink / Pending Amber Ink / Absent Grey Ink. The dark-board trio fails 3:1 on kraft \u2014 using it there is a bug, not a style choice.",
+        "section": "colors"
+      },
+      {
+        "name": "The Caps Rule",
+        "body": "Anything that names a surface, a control or a category is condensed-grotesque uppercase. Anything that is data \u2014 a number, a timecode, a path, a log line \u2014 is mono. Prose stays in body case.",
+        "section": "typography"
+      },
+      {
+        "name": "The Truncate Rule",
+        "body": "Long labels are cut with an ellipsis measured against the real font, never wrapped and never allowed to collide with the mark or the meta column. A row is one line, always.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat-By-Default Rule",
+        "body": "Surfaces are flat at rest and flat when active. A shadow is always a bug; if a boundary is unclear, the answer is a 1px rule or a tonal step, never box-shadow.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Hard-Edge Rule",
+        "body": "Radius is 0 everywhere. If a surface wants to feel soft, it has chosen the wrong world.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do keep to the two materials. Kraft for things you pick up; Crate Ground / Recess / Panel for everything structural.",
+      "Do use the Two-Inks Rule when a mark lands on kraft \u2014 Filed Green Ink, Pending Amber Ink, Absent Grey Ink.",
+      "Do pair every colour-coded state with its shape, so state survives greyscale.",
+      "Do keep the silkscreen red under 3% of any screen.",
+      "Do draw a hairline rather than add a shadow when two surfaces need separating.",
+      "Do solve collisions by reserving the column: the mark sits at x1 \u2212 meta_w \u2212 6, clear of both the meta text and the rail.",
+      "Do measure condensed labels with the real font and truncate with an ellipsis."
+    ],
+    "donts": [
+      "Don't add a shadow, glow, gradient or blur.",
+      "Don't round a corner. Radius is 0, including on checkbox boxes, entries and dialogs.",
+      "Don't use emoji, icon fonts, or unicode glyphs as icons. State marks are drawn geometry.",
+      "Don't use Crate Recess for a raised surface or Panel for a sunken one.",
+      "Don't let the log sheet expand; it is a fixed strip and the crate owns the window.",
+      "Don't use Silkscreen Tab Red for a large fill. Kraft is the selection material, red is the tab."
+    ]
+  }
+}

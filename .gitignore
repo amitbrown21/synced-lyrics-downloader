@@ -1,0 +1,12 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# User settings — holds an absolute path to the local music library
+lyrics_gui_config.json
+
+# Impeccable scratch: regenerated captures and per-run process artifacts.
+# The shipping screenshots live in docs/screenshots/ instead.
+.impeccable/review/
+.impeccable/questions/
+.impeccable/decision/
