@@ -15,7 +15,7 @@ from typing import Callable, Iterable
 
 from . import config as app_config
 from .library import analyze_lrc, lrc_path_for, infer_artist_from_path, normalize_title
-from .providers import (cli_available, reject_if_mostly_non_ascii, run_provider,
+from .providers import (backend, reject_if_mostly_non_ascii, run_provider,
                         strip_cjk_lines_in_lrc)
 
 # States that mean "lyrics were written just now".
@@ -191,9 +191,12 @@ def download_targets(
     reporter.progress(0, total)
     reporter.status(f"Downloading... ({total} tracks)", "working")
     reporter.log(f"\n{headline} {total} tracks, {workers} at a time...\n")
-    if not cli_available():
-        reporter.log("syncedlyrics is not on PATH — every lookup will fail. "
+    how = backend()
+    if how == "none":
+        reporter.log("syncedlyrics is unavailable — every lookup will fail. "
                      "Install it with: pip install syncedlyrics", "error")
+    else:
+        reporter.log(f"Provider engine: {how}", "step")
 
     # -- phase 1: plan (sequential; may prompt) ----------------------------
     items: list[WorkItem] = []

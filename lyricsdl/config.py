@@ -9,13 +9,27 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from pathlib import Path
 
 APP_NAME = "Synced Lyrics Downloader"
 
-# The config file lives next to the entry-point script (the repo root), not
-# inside this package, so existing users keep their saved settings.
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+def _data_dir() -> Path:
+    """The durable directory for user settings.
+
+    When frozen (PyInstaller), ``__file__`` resolves inside the temporary
+    bundle directory, which is deleted on exit — anything written there would
+    silently vanish between runs. Beside the executable is the only durable
+    choice. From source this is still the repo root, so existing users keep
+    their saved settings.
+    """
+    if getattr(sys, "frozen", False):
+        return Path(sys.executable).resolve().parent
+    return Path(__file__).resolve().parent.parent
+
+
+PROJECT_ROOT = _data_dir()
 CONFIG_FILE = str(PROJECT_ROOT / "lyrics_gui_config.json")
 
 DEFAULT_GITHUB_URL = "https://github.com/amitbrown21/synced-lyrics-downloader"

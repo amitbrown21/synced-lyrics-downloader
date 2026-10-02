@@ -10,3 +10,9 @@ lyrics_gui_config.json
 .impeccable/review/
 .impeccable/questions/
 .impeccable/decision/
+
+# Packaging output
+build/
+dist/
+*.spec
+selftest-report.json

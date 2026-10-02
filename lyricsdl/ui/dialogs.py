@@ -115,17 +115,33 @@ def ask_upgrade_synced(root, song_name: str) -> tuple[bool, bool]:
 
 
 def open_about(root) -> None:
+    import sys
+    from .. import __version__
+
     win = _toplevel(root, "About")
     center_on(win, root, 620, 560)
     body = tk.Frame(win, bg=T.CRATE)
     body.pack(fill="both", expand=True, padx=T.S.lg, pady=T.S.lg)
     _title_block(body, app_config.APP_NAME,
-                 "Downloads synced (.lrc) lyrics next to your music files. No browser, no account, no ads.")
+                 f"Version {__version__} \u2014 downloads synced (.lrc) lyrics next to your "
+                 "music files. No browser, no account, no ads.")
 
     text = tk.Text(body, bg=T.PANEL, fg=T.TEXT_DIM, bd=0, highlightthickness=0,
                    font=T.ui(10), padx=T.S.md, pady=T.S.md, wrap="word", height=15,
                    insertbackground=T.TEXT)
     text.pack(fill="both", expand=True, pady=(T.S.lg, T.S.md))
+    if getattr(sys, "frozen", False):
+        requirements = [
+            "This is the standalone build.",
+            "  \u2022 Nothing else to install: Python and the lyrics engine are bundled.",
+            "  \u2022 Settings are saved next to this executable.",
+        ]
+    else:
+        requirements = [
+            "Requirements",
+            "  Python 3.10+  \u2022  pip install syncedlyrics customtkinter",
+            "  tkinter ships with standard Python on Windows and most Linux installs.",
+        ]
     for line in [
         "How it works",
         "  \u2022 Select artists, albums or tracks, then click Download Selection.",
@@ -134,9 +150,7 @@ def open_about(root) -> None:
         "  \u2022 Double-click a track (or press Custom Search) for a hard-to-find track.",
         "  \u2022 Cancel stops safely after the current track. F5 rescans, Ctrl+D downloads.",
         "",
-        "Requirements",
-        "  Python 3.10+  \u2022  pip install syncedlyrics customtkinter",
-        "  tkinter ships with standard Python on Windows and most Linux installs.",
+        *requirements,
         "",
         "Keyboard",
         "  Ctrl+D  download selection      Escape  cancel job      F5  rescan library",

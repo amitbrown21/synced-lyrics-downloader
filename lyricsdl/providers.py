@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 import re
 import subprocess
+import threading
 
 from . import config as app_config
 
@@ -20,11 +21,78 @@ _LRC_META_PREFIXES = ("[ar:", "[ti:", "[al:", "[by:", "[offset:", "[re:", "[ve:"
 # pool, one hung child would stall the whole job and Cancel could not end it.
 PROVIDER_TIMEOUT = 120
 
+# Cap on lookups left running past their timeout. Python threads cannot be
+# killed, so a hung call is abandoned rather than stopped; this bounds how many
+# such threads can pile up before we refuse to start more.
+_MAX_ABANDONED = 6
+_slots = threading.BoundedSemaphore(_MAX_ABANDONED)
+
+
+def backend() -> str:
+    """Which engine will service lookups: ``cli``, ``inproc``, or ``none``.
+
+    ``cli`` shells out to the ``syncedlyrics`` command (process isolation and a
+    hard timeout). ``inproc`` calls the library in this process, which is how
+    the frozen executable works on a machine with nothing installed. The
+    ``LYRICSDL_BACKEND`` environment variable forces one, for testing.
+    """
+    forced = os.environ.get("LYRICSDL_BACKEND", "").strip().lower()
+    if forced in ("cli", "inproc", "none"):
+        return forced
+    from shutil import which
+    if which("syncedlyrics"):
+        return "cli"
+    try:
+        import syncedlyrics  # noqa: F401
+    except Exception:
+        return "none"
+    return "inproc"
+
 
 def cli_available() -> bool:
     """Is the ``syncedlyrics`` console script on this machine?"""
-    from shutil import which
-    return which("syncedlyrics") is not None
+    return backend() == "cli"
+
+
+def _run_in_process(query: str, provider: str, out_path: str,
+                    lang_code: str, want_synced: bool) -> None:
+    """Look up *out_path* via the syncedlyrics library, in this process.
+
+    The call runs on a daemon thread so a hung request cannot pin the calling
+    worker forever. If it overruns we abandon it — nothing on disk has been
+    touched, because we only ever write the string the call returns.
+    """
+    import syncedlyrics
+
+    if not _slots.acquire(blocking=False):
+        return  # too many lookups are already stuck; give up quickly
+    box: dict[str, str | None] = {}
+
+    def call() -> None:
+        try:
+            # Same arguments the official CLI passes, minus save_path: that
+            # runs str.format() on the path, which a brace in a folder name
+            # would turn into a crash. Writing the returned string here is
+            # byte-identical, since save_lrc_file just writes to_str().
+            box["text"] = syncedlyrics.search(
+                query,
+                plain_only=not want_synced,
+                synced_only=want_synced,
+                providers=[provider],
+                lang=lang_code or None,
+            )
+        except Exception:
+            box["text"] = None
+        finally:
+            _slots.release()
+
+    worker = threading.Thread(target=call, daemon=True)
+    worker.start()
+    worker.join(PROVIDER_TIMEOUT)
+    text = box.get("text")
+    if text:
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(text)
 
 
 def run_provider(query: str, provider: str, out_path: str, lang_code: str, want_synced: bool) -> bool:
@@ -35,17 +103,23 @@ def run_provider(query: str, provider: str, out_path: str, lang_code: str, want_
         except Exception:
             pass
 
-    cmd = ["syncedlyrics", query, "-p", provider, "-o", out_path]
-    cmd.append("--synced-only" if want_synced else "--plain-only")
-    if lang_code:
-        cmd.extend(["--lang", lang_code])
+    how = backend()
+    if how == "cli":
+        cmd = ["syncedlyrics", query, "-p", provider, "-o", out_path]
+        cmd.append("--synced-only" if want_synced else "--plain-only")
+        if lang_code:
+            cmd.extend(["--lang", lang_code])
+        # CREATE_NO_WINDOW: a windowed GUI build must not flash a console for
+        # every lookup. One provider failing must also not kill the run.
+        flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+        try:
+            subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                           timeout=PROVIDER_TIMEOUT, creationflags=flags)
+        except Exception:
+            return False
+    elif how == "inproc":
+        _run_in_process(query, provider, out_path, lang_code, want_synced)
 
-    # One provider failing (timeout, missing CLI, crash) must not kill the run.
-    try:
-        subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                       timeout=PROVIDER_TIMEOUT)
-    except Exception:
-        return False
     return os.path.exists(out_path) and os.path.getsize(out_path) > 50
 
 

@@ -8,6 +8,18 @@ A desktop GUI app for downloading synced (`.lrc`) lyrics for your local music li
 
 ---
 
+## Download
+
+Grab the standalone Windows build from the [latest release](https://github.com/amitbrown21/synced-lyrics-downloader/releases/latest):
+
+**`SyncedLyricsDownloader.exe`** — one file, nothing else to install. No Python, no `pip install`, no `syncedlyrics`: the lyrics engine is bundled inside, and the app falls back to it in-process when the `syncedlyrics` command is not on the machine. Double-click and go.
+
+Windows may warn about an unrecognised publisher the first time (the binary is not code-signed) — choose **More info → Run anyway**. Settings are saved next to the executable.
+
+Running from source is still fully supported; see [Installation](#installation).
+
+---
+
 ## Screenshots
 
 **First run** — the crate before a folder is opened.
@@ -92,6 +104,25 @@ pip install -r requirements.txt
 # 3. Run
 python lyrics_downloader_ultimate.py
 ```
+
+---
+
+## Building the executable
+
+```bash
+pip install pyinstaller
+python build_exe.py
+```
+
+This writes a single `dist/SyncedLyricsDownloader.exe` (~39 MB) with the GUI theme assets, the lyrics engine and the TLS certificates bundled in. The icon is drawn from the same design tokens as the UI, so it cannot drift from the palette, and the version stamped into the file comes from `lyricsdl.__version__`.
+
+Verify a build the way a user would meet it — launch it and make it exercise its own engine and window:
+
+```bash
+python tests/test_exe.py
+```
+
+That runs the packaged app's `--selftest`, which does a real lookup, builds the real window against a miniature library, and writes a JSON report the test asserts on. The lookup needs the network, so it is reported but not required; everything else is asserted. `--selftest` works on a source checkout too.
 
 ---
 
