@@ -22,7 +22,8 @@ from .. import library
 from ..downloader import Reporter, download_targets, run_custom_query
 from . import dialogs
 from . import theme as T
-from .widgets import (CratePane, Row, SPINE_COLORS, Tooltip, silk_button)
+from .widgets import (CratePane, ResultPane, Row, SPINE_COLORS, Tooltip,
+                      reset_font_cache, silk_button)
 
 LEVEL_WORD = {"info": "INFO", "step": "STEP", "ok": "OK", "warn": "WARN", "error": "ERR"}
 STATUS_KIND = {"normal": T.TEXT, "working": T.FOCUS, "success": T.GREEN, "error": T.RED_SOFT}
@@ -59,6 +60,9 @@ class _UiReporter(Reporter):
     def progress(self, done: int, total: int) -> None:
         self.app._post(self.app.set_progress, done, total)
 
+    def track(self, path: str, state: str, detail: str = "") -> None:
+        self.app._post(self.app.on_track, path, state, detail)
+
     def ask_upgrade(self, song_name: str, should_cancel) -> tuple[bool, bool]:
         return self.app._ask_upgrade_blocking(song_name, should_cancel)
 
@@ -70,6 +74,7 @@ class App:
         self.root.title(app_config.APP_NAME)
         self.root.minsize(940, 640)
         T.init_fonts(self.root)
+        reset_font_cache()   # a fresh root invalidates every cached Font
 
         self.music_dir: str = app_config.config.get("music_dir", "")
         self.missing_targets: list[str] = []
@@ -194,20 +199,24 @@ class App:
         for state, label in (("all", "complete"), ("some", "partial"), ("none", "empty")):
             self._legend_mark(legend, state, label)
 
-        # -- log sheet -----------------------------------------------------
-        # The log is a record, not the work surface: a fixed strip, so the
-        # three crate panes keep the window.
-        log_wrap = tk.Frame(self.root, bg=T.CRATE)
-        log_wrap.pack(fill="x", padx=T.S.lg, pady=(0, T.S.sm))
+        # -- results sheet -------------------------------------------------
+        # The clear answer to "what happened?": one row per track. The raw log
+        # is still there, one click away, for when something goes wrong.
+        self.result_pane = ResultPane(self.root, on_toggle_log=self.toggle_log,
+                                      empty_text="Download a selection to see what "
+                                                 "each track got.",
+                                      height=196)
+        self.result_pane.pack(fill="x", padx=T.S.lg, pady=(0, T.S.sm))
 
-        log_head = tk.Frame(log_wrap, bg=T.CRATE)
+        self.log_wrap = tk.Frame(self.root, bg=T.CRATE)   # packed by toggle_log
+        log_head = tk.Frame(self.log_wrap, bg=T.CRATE)
         log_head.pack(fill="x")
         tk.Label(log_head, text="JOB LOG", bg=T.CRATE, fg=T.TEXT_DIM,
                  font=T.display(10)).pack(side="left")
         self.log_meta = tk.Label(log_head, text="", bg=T.CRATE, fg=T.TEXT_FAINT, font=T.mono(9))
         self.log_meta.pack(side="right")
 
-        log_body = tk.Frame(log_wrap, bg=T.PANEL_EDGE)
+        log_body = tk.Frame(self.log_wrap, bg=T.PANEL_EDGE)
         log_body.pack(fill="both", expand=True, pady=(T.S.xs, 0))
         self.log_text = tk.Text(log_body, bg=T.PANEL, fg=T.TEXT_DIM, bd=0, highlightthickness=0,
                                 font=T.mono(9), padx=T.S.md, pady=T.S.sm, wrap="word",
@@ -316,6 +325,58 @@ class App:
         self.log_text.configure(state="normal")
         self.log_text.delete("1.0", "end")
         self.log_text.configure(state="disabled")
+
+    def toggle_log(self) -> None:
+        show = not self.log_wrap.winfo_ismapped()
+        if show:
+            self.log_wrap.pack(fill="x", padx=T.S.lg, pady=(0, T.S.sm))
+        else:
+            self.log_wrap.pack_forget()
+        self.result_pane.set_log_visible(show)
+
+    # ------------------------------------------------------------- results
+
+    def _seed_results(self, paths: list[str]) -> None:
+        """Lay out every queued track up front, in job order.
+
+        Seeding beats appending on completion: the whole worklist is visible
+        from the first second, and rows settle in place instead of arriving in
+        whatever order the pool happened to finish them.
+        """
+        rows = []
+        for path in paths:
+            base = os.path.splitext(os.path.basename(path))[0]
+            index, title = _split_track(base)
+            rows.append(Row(key=path, label=title, kind="result", state="queued",
+                            index=index, meta=self._relative_folder(path)))
+        self.result_pane.reset(rows)
+        self.result_pane.set_summary("")
+
+    def _relative_folder(self, path: str) -> str:
+        try:
+            rel = os.path.relpath(os.path.dirname(path), self.music_dir or "")
+        except Exception:
+            return ""
+        return "" if rel == "." else rel
+
+    def on_track(self, path: str, state: str, detail: str = "") -> None:
+        """Apply one engine track event to the results sheet."""
+        if not self.result_pane.has_row(path):
+            base = os.path.splitext(os.path.basename(path))[0]
+            index, title = _split_track(base)
+            self.result_pane.add_row(Row(key=path, label=title, kind="result",
+                                         index=index, meta=self._relative_folder(path)))
+        self.result_pane.update_row(path, state=state, provider=detail)
+        self._refresh_result_summary()
+
+    def _refresh_result_summary(self) -> None:
+        counts: dict[str, int] = {}
+        for row in self.result_pane.list.rows:
+            counts[row.state or "queued"] = counts.get(row.state or "queued", 0) + 1
+        order = ("working", "queued", "synced", "upgraded", "plain",
+                 "kept", "skipped", "failed", "cancelled")
+        self.result_pane.set_summary(" · ".join(
+            f"{counts[s]} {s}" for s in order if counts.get(s)))
 
     # -------------------------------------------------------------- library
 
@@ -562,6 +623,7 @@ class App:
                                                    headline="Processing"))
 
     def _job_download(self, targets, *, prompt_upgrades: bool, headline: str) -> None:
+        self._post(self._seed_results, list(targets))
         reporter = _UiReporter(self)
         summary = download_targets(targets, music_dir=self.music_dir, reporter=reporter,
                                    cancel=lambda: self._cancel, prompt_upgrades=prompt_upgrades,
@@ -647,6 +709,7 @@ class App:
         )
 
     def _job_custom(self, path: str, query: str) -> None:
+        self._post(self._seed_results, [path])
         def worker():
             reporter = _UiReporter(self)
             summary = run_custom_query(path, query, reporter=reporter, cancel=lambda: self._cancel)

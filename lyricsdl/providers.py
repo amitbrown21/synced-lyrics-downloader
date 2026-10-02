@@ -16,6 +16,16 @@ CJK_RE = re.compile(r"[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uac00-\ud7af]")
 
 _LRC_META_PREFIXES = ("[ar:", "[ti:", "[al:", "[by:", "[offset:", "[re:", "[ve:")
 
+# A provider that never returns must not pin a worker thread forever: with a
+# pool, one hung child would stall the whole job and Cancel could not end it.
+PROVIDER_TIMEOUT = 120
+
+
+def cli_available() -> bool:
+    """Is the ``syncedlyrics`` console script on this machine?"""
+    from shutil import which
+    return which("syncedlyrics") is not None
+
 
 def run_provider(query: str, provider: str, out_path: str, lang_code: str, want_synced: bool) -> bool:
     """Run one provider into *out_path*; return True if a usable file landed."""
@@ -30,7 +40,12 @@ def run_provider(query: str, provider: str, out_path: str, lang_code: str, want_
     if lang_code:
         cmd.extend(["--lang", lang_code])
 
-    subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # One provider failing (timeout, missing CLI, crash) must not kill the run.
+    try:
+        subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                       timeout=PROVIDER_TIMEOUT)
+    except Exception:
+        return False
     return os.path.exists(out_path) and os.path.getsize(out_path) > 50
 
 

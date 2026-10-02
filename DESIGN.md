@@ -247,12 +247,14 @@ tall and three columns wide.
 Vertically: a **header strip** (54px) carrying the wordmark, the library path and
 the folder/settings/about actions; a **3px progress rail** with a 1px rule beneath
 it; the **crate body** (expanding, ≥420px) holding the three panes; a
-**silkscreen action bar** (46px); the **legend** (one line of marks); the **log
-sheet** (a fixed ~106px strip, deliberately not expanding); a 1px rule; and a
-**status strip** (30px).
+**silkscreen action bar** (46px); the **legend** (one line of marks); the
+**results sheet** (a fixed ~224px, deliberately not expanding); the **job log**
+(collapsed by default, shown on demand); a 1px rule; and a **status strip** (30px).
 
-The log is intentionally fixed-height. It is a record of a job, not a work
-surface; letting it expand would halve the crate and invert the hierarchy.
+The results sheet is fixed-height and the log is hidden behind a toggle. The
+sheet answers "what happened to each track?" in one glance; the raw log is a
+diagnostic record, not a work surface. Letting either expand would halve the
+crate and invert the hierarchy.
 
 Horizontally the crate body holds three panes: **Artists** 300px fixed,
 **Albums** 330px fixed, **Tracks** fluid. Each pane is a 30px header (title,
@@ -328,6 +330,12 @@ There is no navigation bar. Movement through the library *is* the navigation, an
 **CrateList rows.** Three row types in one canvas-drawn list. *Divider*: a 32px kraft board with a 26px tab at its head — the tab is silkscreen red when selected, crate board when not — carrying the artist name in Title ink and, once scanned, a folder-state mark at its right edge. *Spine*: a 26px dark row with a 5px coloured stripe at its left edge and a state mark at its right. *Track*: a 24px row on recess, ruled by a 1px hairline, holding a mono track number, the title, a mono running-time slot, and a stamped state mark. Multi-select is native (click, Ctrl-click, Shift-range); arrow keys move, Ctrl+A selects all, and the pane header toggles All/Clear.
 
 **State marks.** Drawn on canvas at 13px, never emoji and never a font glyph, so they render identically on every machine and can be inked for either material. Synced/complete is a circle with a check; plain is a square sheet with two rules; incomplete is a struck triangle; missing is a struck circle; partly complete is a half-filled circle. Each is a distinct silhouette, so the state survives greyscale and colour-blindness.
+
+**Results sheet.** A read-only canvas sheet that replaces reading a scrolling log. One kraft header strip carries four column labels (TRACK / FOLDER / PROVIDER / RESULT) and does not scroll — rows pass underneath it, so the columns stay named no matter how long the job runs. Under it, one 24px ruled row per track: a drawn state mark, the title, the folder it lives in, the provider that answered (or the reason none did), and the state as a word in mono caps, right-aligned and coloured by the same token as its mark. Rows are seeded in job order before any lookup starts, so the whole worklist is visible from the first second and each row settles in place rather than appearing out of order. The sheet follows the work frontier as it descends, and stops following the moment the user takes the wheel.
+
+**Result states.** The sheet needs states the library panes never show, so the mark family grows by exactly one silhouette. *Queued* and *skipped* reuse the struck circle, *failed* reuses it in Silkscreen Red Soft, *upgraded* reuses the synced check, and *kept* reuses the plain sheet. The state is carried by colour and the word, not by new geometry. *Working* is the one new shape: an open 285° ring, the only mark that is deliberately incomplete, because the track it describes is still in flight.
+
+*Kept* exists because "we left your existing plain lyrics alone" is neither a write nor a failure. Counting it as a download would inflate the summary, so it is reported distinctly and excluded from both tallies.
 
 **Silkscreen action bar.** A Panel band whose buttons are flat ink-press shapes. It holds the two flows side by side: *select → download*, and *scan missing → download missing*, with the scan button carrying a live `[n]` count once it has found something.
 

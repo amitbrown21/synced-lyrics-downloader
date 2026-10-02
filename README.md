@@ -26,6 +26,10 @@ A desktop GUI app for downloading synced (`.lrc`) lyrics for your local music li
 
 ![Custom search dialog](docs/screenshots/dialog-custom-search.png)
 
+**Results sheet** — one row per track, so you can see exactly what landed and whether it's synced, plain or nothing. Lookups run several at a time; rows settle in place as they return.
+
+![Results sheet](docs/screenshots/results.png)
+
 **About** — version and project links.
 
 ![About dialog](docs/screenshots/dialog-about.png)
@@ -38,6 +42,8 @@ A desktop GUI app for downloading synced (`.lrc`) lyrics for your local music li
 
 - **Synced lyrics first** — always tries `.lrc` with timestamps before falling back to plain text
 - **Everything saved as `.lrc`** — maximum compatibility with all media players
+- **Parallel lookups** — several tracks are fetched at once (4 by default, 1–16 in Settings), so a big library doesn't crawl
+- **Per-track results sheet** — every track gets a row showing its state in words: synced, plain, upgraded, skipped or failed, and which provider answered
 - **Multiple providers** — Lrclib, Musixmatch, Megalobiz, NetEase, Genius (configurable priority)
 - **Smart scanning** — scan selection for missing lyrics, download only what's missing
 - **Custom Search** — override the search query for hard-to-find tracks
@@ -107,10 +113,16 @@ lyricsdl/
     app.py                      main window: selection, background jobs, shortcuts
 tests/
   test_library.py               lyric parsing and state classification
-  test_downloader.py            engine failure paths (runs offline)
+  test_downloader.py            engine paths: upgrades, cancellation, parallel lookups
 docs/screenshots/               shipping screenshots
 DESIGN.md                       the visual system
 ```
+
+The download engine runs in two phases: a sequential planning pass (which may
+raise the "upgrade to synced?" prompt and settles "Yes to all" in one place),
+then a thread pool that fetches several tracks at once. Each lookup shells out
+to the `syncedlyrics` CLI, so tracks are independent processes and nothing is
+shared but the reporter.
 
 The screenshots are generated, not hand-cropped — rerun them after UI changes:
 
@@ -142,7 +154,7 @@ Run the self-checks with `python tests/test_library.py` and
 2. Select an **artist** from the left panel
 3. Select **albums** and/or **tracks** (or use Select All)
 4. Click **Download Lyrics For Selection**
-5. Watch the log panel — done!
+5. Watch the results sheet — every track reports what it got
 
 ### Finding missing lyrics
 
@@ -173,6 +185,7 @@ Open **Settings** to configure:
 | Language | Preferred lyrics language code (e.g. `en`) |
 | Strip CJK lines | Remove Chinese/Japanese/Korean lines from results |
 | Reject mostly non-ASCII | Filter out results in wrong language |
+| Parallel lookups | How many tracks are fetched at once (1–16, default 4) |
 
 ---
 

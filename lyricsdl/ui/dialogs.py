@@ -374,6 +374,17 @@ def open_options(root, on_saved: Callable[[], None]) -> None:
                  border_color=T.PANEL_EDGE, border_width=1, corner_radius=0,
                  font=T.mono(11), height=28).grid(row=3, column=1, sticky="w", padx=(T.S.sm, T.S.sm), pady=(T.S.sm, 0))
 
+    tk.Label(quality, text="PARALLEL LOOKUPS", bg=T.CRATE, fg=T.TEXT_DIM,
+             font=T.display(9)).grid(row=4, column=0, sticky="w", pady=(T.S.md, 0))
+    conc_var = tk.StringVar(value=str(app_config.config.get("concurrency", 4)))
+    ctk.CTkEntry(quality, textvariable=conc_var, width=70, fg_color=T.PANEL, text_color=T.TEXT,
+                 border_color=T.PANEL_EDGE, border_width=1, corner_radius=0,
+                 font=T.mono(11), height=28).grid(row=4, column=1, sticky="w", padx=(T.S.sm, T.S.sm),
+                                                  pady=(T.S.md, 0))
+    tk.Label(quality, text="tracks fetched at once (1–16) — faster, but can trip rate limits",
+             bg=T.CRATE, fg=T.TEXT_FAINT, font=T.ui(9)).grid(row=4, column=2, sticky="w",
+                                                             pady=(T.S.md, 0))
+
     def on_save():
         fixed, seen = [], set()
         for name in order:
@@ -387,6 +398,10 @@ def open_options(root, on_saved: Callable[[], None]) -> None:
             ratio = max(0.05, min(0.50, float(ratio_var.get())))
         except Exception:
             ratio = 0.15
+        try:
+            concurrency = max(1, min(16, int(float(conc_var.get()))))
+        except Exception:
+            concurrency = 4
         plain = bool(plain_var.get())
         if not plain:
             provider_vars["Genius"].set(False)
@@ -400,6 +415,7 @@ def open_options(root, on_saved: Callable[[], None]) -> None:
         cfg["strip_cjk"] = bool(strip_var.get())
         cfg["reject_non_ascii"] = bool(rej_var.get())
         cfg["reject_non_ascii_ratio"] = ratio
+        cfg["concurrency"] = concurrency
         cfg.save()
         win.destroy()
         on_saved()

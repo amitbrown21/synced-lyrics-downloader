@@ -54,6 +54,13 @@ class Config(dict):
     def plain_provider_order(self) -> list[str]:
         return self.enabled_providers_in_order()
 
+    def workers(self) -> int:
+        """How many tracks to look up at once. Clamped to a sane range."""
+        try:
+            return max(1, min(16, int(self.get("concurrency", 4))))
+        except Exception:
+            return 4
+
 
 def load() -> Config:
     if os.path.exists(CONFIG_FILE):
@@ -81,6 +88,7 @@ def _with_defaults(cfg: Config) -> Config:
     cfg.setdefault("strip_cjk", True)
     cfg.setdefault("reject_non_ascii", True)
     cfg.setdefault("reject_non_ascii_ratio", 0.15)
+    cfg.setdefault("concurrency", 4)
     return cfg
 
 

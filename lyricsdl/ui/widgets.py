@@ -21,7 +21,7 @@ from . import theme as T
 PULL = 7            # px a selected row is pulled forward
 RAIL = 10           # px reserved for the custom scroll rail
 
-ROW_HEIGHT = {"divider": 32, "spine": 26, "track": 24, "item": 26}
+ROW_HEIGHT = {"divider": 32, "spine": 26, "track": 24, "item": 26, "result": 24}
 
 # Spine colours cycle through the crate palette so albums stay distinguishable.
 SPINE_COLORS = ["#8C6A4A", "#6E7A62", "#8A5B4E", "#5E6B72", "#7A6A86", "#9A7B4A"]
@@ -31,13 +31,40 @@ SPINE_COLORS = ["#8C6A4A", "#6E7A62", "#8A5B4E", "#5E6B72", "#7A6A86", "#9A7B4A"
 class Row:
     key: str
     label: str
-    kind: str = "item"          # divider | spine | track | item
-    state: str | None = None    # all|some|none (folders) / synced|plain|incomplete|none (tracks)
+    kind: str = "item"          # divider | spine | track | item | result
+    state: str | None = None    # all|some|none (folders) / synced|plain|incomplete|none (tracks) / job states (results)
     meta: str = ""              # trailing text (track count, running time, …)
     index: str = ""             # divider tab label
     spine: str = ""             # spine stripe colour
     mark: bool = True           # draw the leading state mark
+    provider: str = ""          # result rows: who answered, or why nobody did
     data: dict = field(default_factory=dict)
+
+
+def result_columns(x0: float, x1: float, sf: float = 1.0) -> dict:
+    """Column geometry for result rows.
+
+    One source of truth, so the header strip and the rows can never disagree.
+    The state column is right-aligned, so its width has to be reserved up front
+    — otherwise long provider text runs underneath it.
+    """
+    gap = 10.0 * sf
+    mark_w = 26.0 * sf
+    state_w = 92.0 * sf
+    provider_w = 104.0 * sf
+    right = x1 - 12.0 * sf
+    title_x = x0 + mark_w
+    provider_x = right - state_w - gap - provider_w
+    span = max(60.0, provider_x - gap - title_x)
+    meta_w = span * 0.5
+    return {
+        "mark_x": x0 + mark_w / 2,
+        "title": (title_x, span - meta_w),
+        "meta": (title_x + (span - meta_w) + gap, meta_w),
+        "provider": (provider_x, provider_w),
+        "state_x": right,
+    }
+
 
 
 # --------------------------------------------------------------------------
@@ -51,6 +78,14 @@ MARK_COLORS = {
     "none": T.VOID,
     "all": T.GREEN,
     "some": T.AMBER,
+    # Job-result states, shown on the results sheet.
+    "queued": T.mix(T.VOID, T.CRATE, 0.55),
+    "working": T.FOCUS,
+    "upgraded": T.GREEN,
+    "kept": T.VOID,
+    "skipped": T.VOID,
+    "failed": T.RED_SOFT,
+    "cancelled": T.mix(T.VOID, T.CRATE, 0.3),
 }
 
 MARK_LABELS = {
@@ -60,6 +95,13 @@ MARK_LABELS = {
     "none": "no lyrics",
     "all": "complete",
     "some": "partly complete",
+    "queued": "queued",
+    "working": "looking up…",
+    "upgraded": "upgraded to synced",
+    "kept": "kept plain lyrics",
+    "skipped": "skipped",
+    "failed": "no lyrics found",
+    "cancelled": "cancelled",
 }
 
 # On kraft board the state colours are inked down to stay legible.
@@ -70,6 +112,23 @@ MARK_COLORS_STOCK = {
     "none": T.VOID_INK,
     "incomplete": T.AMBER_INK,
     "some": T.AMBER_INK,
+    "queued": T.INK_FAINT,
+    "working": T.AMBER_INK,
+    "upgraded": T.GREEN_INK,
+    "kept": T.VOID_INK,
+    "skipped": T.VOID_INK,
+    "failed": T.RED_DEEP,
+    "cancelled": T.INK_FAINT,
+}
+
+# States that borrow another state's silhouette so the family stays small.
+MARK_SHAPES = {
+    "upgraded": "synced",
+    "kept": "plain",
+    "failed": "none",
+    "skipped": "none",
+    "cancelled": "none",
+    "queued": "none",
 }
 
 
@@ -83,25 +142,30 @@ def draw_mark(canvas: tk.Canvas, x: float, y: float, size: float, state: str | N
     """Draw a state mark centred on (x, y). *size* is the mark's box."""
     if not state:
         return
+    shape = MARK_SHAPES.get(state, state)
     h = size / 2.0
     left, top, right, bottom = x - h, y - h, x + h, y + h
     lw = max(1.0, size / 9.0)
-    if state in ("synced", "all"):
+    if shape == "working":
+        # An open ring: the mark for "in flight", distinct from a settled state.
+        canvas.create_arc(left, top, right, bottom, start=55, extent=285, style="arc",
+                          outline=color, width=lw * 1.4)
+    elif shape in ("synced", "all"):
         canvas.create_oval(left, top, right, bottom, outline=color, width=lw, fill="")
         canvas.create_line(x - h * 0.45, y, x - h * 0.08, y + h * 0.42, fill=color, width=lw,
                            capstyle="round", joinstyle="round")
         canvas.create_line(x - h * 0.08, y + h * 0.42, x + h * 0.5, y - h * 0.4, fill=color, width=lw,
                            capstyle="round", joinstyle="round")
-    elif state == "plain":
+    elif shape == "plain":
         canvas.create_rectangle(left, top, right, bottom, outline=color, width=lw, fill="")
         canvas.create_line(left + h * 0.5, y - h * 0.25, right - h * 0.4, y - h * 0.25, fill=color, width=lw)
         canvas.create_line(left + h * 0.5, y + h * 0.35, right - h * 0.7, y + h * 0.35, fill=color, width=lw)
-    elif state == "incomplete":
+    elif shape == "incomplete":
         canvas.create_polygon(x, top, right, bottom, left, bottom, outline=color, width=lw,
                               fill="", joinstyle="miter")
         canvas.create_line(x, y - h * 0.35, x, y + h * 0.15, fill=color, width=lw, capstyle="round")
         canvas.create_line(x, y + h * 0.5, x, y + h * 0.5, fill=color, width=lw * 2, capstyle="round")
-    elif state == "some":
+    elif shape == "some":
         canvas.create_oval(left, top, right, bottom, outline=color, width=lw, fill="")
         canvas.create_arc(left, top, right, bottom, start=90, extent=180, style="pieslice",
                           outline="", fill=color)
@@ -125,6 +189,16 @@ class StateMark(tk.Canvas):
 # --------------------------------------------------------------------------
 
 _FONT_CACHE: dict[tuple, tkfont.Font] = {}
+
+
+def reset_font_cache() -> None:
+    """Drop cached Font objects.
+
+    A ``tkfont.Font`` is bound to the Tk root that was current when it was
+    created, so every cached entry dies with that root — which then fails with
+    "application has been destroyed" rather than a useful message.
+    """
+    _FONT_CACHE.clear()
 
 
 def _font(spec: tuple) -> tkfont.Font:
@@ -223,11 +297,17 @@ class Tooltip:
 # --------------------------------------------------------------------------
 
 class CrateList(tk.Frame):
-    """A Canvas list of crate rows with multi-select and a pull-forward state."""
+    """A Canvas list of crate rows with multi-select and a pull-forward state.
+
+    ``interactive=False`` turns it into a read-only sheet (no selection, no
+    hover, no keyboard). ``header`` adds a non-scrolling kraft column strip.
+    """
 
     def __init__(self, parent, *, on_select: Callable | None = None,
                  on_activate: Callable | None = None, empty_text: str = "",
-                 row_height: int | None = None, footer_text: str = ""):
+                 row_height: int | None = None, footer_text: str = "",
+                 interactive: bool = True, follow: bool = False,
+                 header: tuple[str, ...] | None = None):
         super().__init__(parent, bg=T.CRATE_DEEP, highlightthickness=0, bd=0)
         self.canvas = tk.Canvas(self, bg=T.CRATE_DEEP, highlightthickness=0, bd=0,
                                 takefocus=1)
@@ -246,6 +326,9 @@ class CrateList(tk.Frame):
         self._total_h = 0.0
         self._pull = 1.0          # pull-forward animation progress (0..1)
         self._anim_job = None
+        self._interactive = interactive
+        self._follow = follow     # keep the newest row in view
+        self._header = header
 
         self._on_select = on_select
         self._on_activate = on_activate
@@ -253,21 +336,22 @@ class CrateList(tk.Frame):
         self._footer_text = footer_text
 
         self.canvas.bind("<Configure>", lambda e: self._redraw())
-        self.canvas.bind("<Button-1>", self._on_click)
-        self.canvas.bind("<Double-Button-1>", self._on_double)
-        self.canvas.bind("<Motion>", self._on_motion)
-        self.canvas.bind("<Leave>", lambda e: self._set_hover(-1))
         self.canvas.bind("<MouseWheel>", self._on_wheel)
         self.canvas.bind("<Button-4>", lambda e: self._wheel(-1))
         self.canvas.bind("<Button-5>", lambda e: self._wheel(1))
-        self.canvas.bind("<Up>", lambda e: self._move(-1))
-        self.canvas.bind("<Down>", lambda e: self._move(1))
-        self.canvas.bind("<Home>", lambda e: self._move_to(0))
-        self.canvas.bind("<End>", lambda e: self._move_to(len(self.rows) - 1))
-        self.canvas.bind("<Prior>", lambda e: self._move(-8))
-        self.canvas.bind("<Next>", lambda e: self._move(8))
-        self.canvas.bind("<Control-a>", lambda e: (self.select_all(), "break"))
-        self.canvas.bind("<Control-A>", lambda e: (self.select_all(), "break"))
+        if interactive:
+            self.canvas.bind("<Button-1>", self._on_click)
+            self.canvas.bind("<Double-Button-1>", self._on_double)
+            self.canvas.bind("<Motion>", self._on_motion)
+            self.canvas.bind("<Leave>", lambda e: self._set_hover(-1))
+            self.canvas.bind("<Up>", lambda e: self._move(-1))
+            self.canvas.bind("<Down>", lambda e: self._move(1))
+            self.canvas.bind("<Home>", lambda e: self._move_to(0))
+            self.canvas.bind("<End>", lambda e: self._move_to(len(self.rows) - 1))
+            self.canvas.bind("<Prior>", lambda e: self._move(-8))
+            self.canvas.bind("<Next>", lambda e: self._move(8))
+            self.canvas.bind("<Control-a>", lambda e: (self.select_all(), "break"))
+            self.canvas.bind("<Control-A>", lambda e: (self.select_all(), "break"))
 
     # -- data -------------------------------------------------------------
 
@@ -279,6 +363,30 @@ class CrateList(tk.Frame):
             self._anchor = None
         self._clamp_scroll()
         self._redraw()
+
+    def add_row(self, row: Row) -> None:
+        """Append one row and keep it in view while following."""
+        self.rows.append(row)
+        self._clamp_scroll()
+        if self._follow:
+            self.see(len(self.rows) - 1)
+
+    def see_key(self, key: str) -> None:
+        """Scroll *key* into view, unless the user has taken over scrolling."""
+        if not self._follow:
+            return
+        i = self.index_of(key)
+        if i is not None:
+            self.see(i)
+
+    def scroll_to_top(self) -> None:
+        self._scroll = 0.0
+        self._redraw()
+
+    def resume_follow(self) -> None:
+        """Re-engage auto-scroll, e.g. when a new job starts."""
+        self._follow = True
+
 
     def row_height(self, row: Row) -> int:
         if self._height_override:
@@ -360,7 +468,11 @@ class CrateList(tk.Frame):
         return y
 
     def _viewport_h(self) -> float:
-        return max(self.canvas.winfo_height(), 1)
+        """Usable content height: the header strip, if any, is not scrollable."""
+        return max(self.canvas.winfo_height() - self._header_h(), 1)
+
+    def _header_h(self) -> float:
+        return (24.0 * self._sf) if self._header else 0.0
 
     def _clamp_scroll(self) -> None:
         total = self._row_top(len(self.rows)) + (self._footer_h())
@@ -394,6 +506,7 @@ class CrateList(tk.Frame):
         self._wheel(-1 if event.delta > 0 else 1)
 
     def _wheel(self, direction: int):
+        self._follow = False      # the user took the wheel; stop chasing rows
         self._scroll += direction * 60
         self._clamp_scroll()
         self._redraw()
@@ -472,36 +585,58 @@ class CrateList(tk.Frame):
             return
         self._clamp_scroll()
 
-        y = -self._scroll
+        top = self._header_h()
+        y = top - self._scroll
         rail_x = w - RAIL
         c.create_rectangle(0, 0, rail_x, h, outline="", fill=T.CRATE_DEEP)
 
         if not self.rows:
             if self._empty_text:
-                c.create_text(T.S.md + 2, T.S.xl, anchor="nw", text=self._empty_text,
+                c.create_text(T.S.md + 2, top + T.S.sm, anchor="nw", text=self._empty_text,
                               font=T.ui(10), fill=T.TEXT_FAINT, width=max(40, rail_x - 2 * T.S.md))
-            self._draw_rail(rail_x, w, h)
-            return
+        else:
+            for i, row in enumerate(self.rows):
+                rh = self.row_height(row)
+                if y + rh >= top and y <= h:   # cull above the header, not just the canvas
+                    selected = row.key in self._sel
+                    self._draw_row(c, i, row, y, rh, rail_x, selected, i == self._hover)
+                y += rh + 1
 
-        for i, row in enumerate(self.rows):
-            rh = self.row_height(row)
-            if y + rh >= 0 and y <= h:
-                selected = row.key in self._sel
-                self._draw_row(c, i, row, y, rh, rail_x, selected, i == self._hover)
-            y += rh + 1
+            if self._footer_text:
+                self._draw_footer(c, rail_x, y)
 
-        if self._footer_text:
-            self._draw_footer(c, rail_x, y)
         self._draw_rail(rail_x, w, h)
+        if self._header:
+            self._draw_header(c, rail_x)   # last: rows scroll under the strip
+
+    def _draw_header(self, c: tk.Canvas, rail_x: float):
+        hh = self._header_h()
+        c.create_rectangle(0, 0, rail_x, hh, outline="", fill=T.STOCK_DIM)
+        c.create_line(0, hh, rail_x, hh, fill=T.STOCK_EDGE)
+        cols = result_columns(T.S.sm, rail_x - T.S.sm, self._sf)
+        cy = hh / 2
+        labels = self._header
+        for i, (x, anchor) in enumerate((
+            (cols["title"][0], "w"),
+            (cols["meta"][0], "w"),
+            (cols["provider"][0], "w"),
+            (cols["state_x"], "e"),
+        )):
+            if i < len(labels):
+                c.create_text(x, cy, anchor=anchor, text=labels[i],
+                              font=T.display(9), fill=T.INK_SOFT)
 
     def _draw_rail(self, rail_x: float, w: float, h: float):
         c = self.canvas
+        top = self._header_h()
         track = max(0.0, self._total_h)
-        if track <= h:
+        view = self._viewport_h()
+        if track <= view or h <= top:
             return
-        c.create_rectangle(rail_x, 0, w, h, outline="", fill=T.CRATE)
-        knob_h = max(24.0, h * (h / track))
-        knob_y = (self._scroll / (track - h)) * (h - knob_h) if track > h else 0
+        c.create_rectangle(rail_x, top, w, h, outline="", fill=T.CRATE)
+        span = h - top
+        knob_h = max(24.0, span * (view / track))
+        knob_y = top + (self._scroll / (track - view)) * (span - knob_h)
         c.create_rectangle(rail_x + 3, knob_y, rail_x + 6, knob_y + knob_h,
                            outline="", fill=T.mix(T.PANEL, T.STOCK, 0.25))
 
@@ -552,6 +687,25 @@ class CrateList(tk.Frame):
                 # Keep clear of the reserved meta column, or the two collide.
                 draw_mark(c, x1 - meta_w - 6, cy, 13, row.state,
                           mark_color(row.state, on_stock=selected))
+        elif kind == "result":
+            cols = result_columns(x0, x1, self._sf)
+            if hover:
+                c.create_rectangle(x0, y + 1, x1, y + rh, outline="", fill=T.PANEL)
+            else:
+                c.create_line(x0, y + rh, x1, y + rh, fill=T.PANEL_EDGE)
+            color = mark_color(row.state)
+            draw_mark(c, cols["mark_x"], cy, 13 * self._sf, row.state, color)
+            tx, tw = cols["title"]
+            c.create_text(tx, cy, anchor="w", text=fit_text(row.label, T.ui(11), tw),
+                          font=T.ui(11), fill=T.TEXT)
+            mx, mw = cols["meta"]
+            c.create_text(mx, cy, anchor="w", text=fit_text(row.meta, T.ui(9), mw),
+                          font=T.ui(9), fill=T.TEXT_FAINT)
+            px, pw = cols["provider"]
+            c.create_text(px, cy, anchor="w", text=fit_text(row.provider, T.mono(9), pw),
+                          font=T.mono(9), fill=T.TEXT_DIM)
+            c.create_text(cols["state_x"], cy, anchor="e", text=(row.state or "").upper(),
+                          font=T.display(9), fill=color)
         else:  # track / item
             if selected:
                 c.create_rectangle(x0, y + 1, x1, y + rh, outline="", fill=T.STOCK)
@@ -620,3 +774,74 @@ class CratePane(tk.Frame):
 
     def set_title(self, title: str) -> None:
         self.title_lbl.configure(text=title.upper())
+
+
+# --------------------------------------------------------------------------
+# The results sheet: what the job actually did, track by track
+# --------------------------------------------------------------------------
+
+RESULT_HEADER = ("TRACK", "FOLDER", "PROVIDER", "RESULT")
+
+
+class ResultPane(tk.Frame):
+    """A read-only sheet of per-track outcomes, newest job on top.
+
+    Replaces squinting at a scrolling log: one ruled row per track, a drawn
+    state mark, and the state spelled out in words — SYNCED, PLAIN, UPGRADED,
+    FAILED, SKIPPED. Rows are seeded in job order so the whole worklist is
+    visible from the first second, then they settle as lookups return.
+    """
+
+    def __init__(self, parent, *, on_toggle_log: Callable[[], None] | None = None,
+                 empty_text: str = "", height: int = 196):
+        super().__init__(parent, bg=T.CRATE, highlightthickness=0, bd=0)
+        self._on_toggle_log = on_toggle_log
+        self._show_log = False
+
+        head = tk.Frame(self, bg=T.PANEL, height=28)
+        head.pack(fill="x")
+        head.pack_propagate(False)
+        tk.Label(head, text="RESULTS", bg=T.PANEL, fg=T.TEXT_DIM,
+                 font=T.display(10)).pack(side="left", padx=(T.S.md, T.S.sm))
+        self.summary_lbl = tk.Label(head, text="", bg=T.PANEL, fg=T.TEXT_FAINT, font=T.mono(9))
+        self.summary_lbl.pack(side="left")
+        self.log_btn = ghost_button(head, "Log", self._toggle, width=58, height=22)
+        self.log_btn.pack(side="right", padx=(0, 2))
+        tk.Frame(self, bg=T.RED, height=2).pack(fill="x")
+
+        wrap = tk.Frame(self, bg=T.PANEL_EDGE, height=height)
+        wrap.pack(fill="x")
+        wrap.pack_propagate(False)
+        self.list = CrateList(wrap, interactive=False, follow=True,
+                              empty_text=empty_text, header=RESULT_HEADER)
+        self.list.pack(fill="both", expand=True, padx=1, pady=1)
+
+    def _toggle(self):
+        if self._on_toggle_log:
+            self._on_toggle_log()
+
+    def set_log_visible(self, visible: bool) -> None:
+        self._show_log = visible
+        self.log_btn.configure(text=("HIDE LOG" if visible else "LOG").upper())
+
+    def set_rows(self, rows: list[Row]) -> None:
+        self.list.set_rows(rows)
+        self.list.scroll_to_top()
+
+    def reset(self, rows: list[Row]) -> None:
+        """Start a fresh job: new rows, back to the top, follow re-engaged."""
+        self.set_rows(rows)
+        self.list.resume_follow()
+
+    def add_row(self, row: Row) -> None:
+        self.list.add_row(row)
+
+    def update_row(self, key: str, **changes) -> None:
+        self.list.update_row(key, **changes)
+        self.list.see_key(key)
+
+    def has_row(self, key: str) -> bool:
+        return self.list.index_of(key) is not None
+
+    def set_summary(self, text: str) -> None:
+        self.summary_lbl.configure(text=text)
