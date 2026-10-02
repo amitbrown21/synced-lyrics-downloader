@@ -184,6 +184,67 @@ def main() -> None:
         assert rec.states()["02 Track.mp3"] == "upgraded", rec.tracks
         app_config.config["auto_upgrade_plain"] = False
 
+        # -- provider health --------------------------------------------------
+        # A provider that has gone dark (an API change, a block, a dead domain)
+        # must not be asked about every track: run_provider reports "broken" and
+        # "no such song" identically, so a canonical probe decides it once per
+        # job. Otherwise every track either wastes a timeout or fails outright.
+        app_config.config["providers_order"] = ["Lrclib", "Megalobiz"]
+        app_config.config["providers_enabled"] = {"Lrclib": True, "Megalobiz": True}
+        asked: list[tuple[str, str]] = []
+
+        def health_aware(query, provider, out_path, lang_code, want_synced):
+            asked.append((provider, query))
+            if provider == "Megalobiz":
+                return False        # dark: will not answer, not even the probe
+            with open(out_path, "w", encoding="utf-8") as f:
+                f.write(SYNCED)
+            return True
+
+        downloader.run_provider = health_aware
+        two = []
+        for name in ("07 Track.mp3", "08 Track.mp3"):
+            path = os.path.join(artist, name)
+            open(path, "wb").close()
+            two.append(path)
+
+        rec = Recorder()
+        summary = downloader.download_targets(two, music_dir=root, reporter=rec,
+                                             cancel=lambda: False)
+        assert summary.succeeded == 2, summary
+        assert "Providers not answering: Megalobiz" in rec.text(), rec.text()
+        assert "Using: Lrclib" in rec.text(), rec.text()
+
+        track_asks = [(p, q) for p, q in asked if q != downloader.HEALTH_QUERY]
+        assert all(p != "Megalobiz" for p, _ in track_asks), (
+            f"a dark provider was still asked about tracks: {asked}")
+        assert any(p == "Lrclib" for p, _ in track_asks), asked
+
+        # If nothing answers the probe at all, that is a network problem rather
+        # than every provider being dead, so the configured list is kept. A blip
+        # must not turn one bad moment into a whole job of failures.
+        asked.clear()
+        dark = []
+        for name in ("09 Track.mp3", "10 Track.mp3"):
+            path = os.path.join(artist, name)
+            open(path, "wb").close()
+            dark.append(path)
+
+        def all_dark(query, provider, out_path, lang_code, want_synced):
+            asked.append((provider, query))
+            return False
+
+        downloader.run_provider = all_dark
+        rec = Recorder()
+        summary = downloader.download_targets(dark, music_dir=root, reporter=rec,
+                                              cancel=lambda: False)
+        assert summary.failed == 2, summary
+        assert "asking them all anyway" in rec.text(), rec.text()
+        # Both providers must still have been offered the tracks.
+        track_providers = {p for p, q in asked if q != downloader.HEALTH_QUERY}
+        assert track_providers == {"Lrclib", "Megalobiz"}, (
+            f"an all-dark probe must not permanently drop providers: {track_providers}")
+
     print("ok")
 
 

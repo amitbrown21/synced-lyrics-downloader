@@ -9,6 +9,8 @@ UI owns that flag.
 from __future__ import annotations
 
 import os
+import shutil
+import tempfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from typing import Callable, Iterable
@@ -20,6 +22,13 @@ from .providers import (backend, reject_if_mostly_non_ascii, run_provider,
 
 # States that mean "lyrics were written just now".
 SUCCESS_STATES = ("synced", "plain", "upgraded")
+
+# Some providers stop serving for good (an API change, a block, a dead domain)
+# while the rest keep working. `run_provider` reports "this provider is broken"
+# and "this provider does not have that song" identically, so the only way to
+# tell them apart is to ask for a track every working provider has. A provider
+# that cannot answer this one is not going to answer anything else either.
+HEALTH_QUERY = "Bohemian Rhapsody Queen"
 
 
 @dataclass
@@ -106,6 +115,30 @@ def _try_synced_upgrade(query, lrc, providers_synced, lang_code, reporter, cance
                 except Exception:
                     pass
     return False
+
+
+def _probe_providers(names: list[str], *, lang_code: str | None) -> set[str]:
+    """Which of *names* actually answer a canonical query.
+
+    Probed concurrently, so the whole check costs about one lookup. Returns the
+    set that answered; an empty set means nothing answered, which the caller
+    treats as "the probe failed", not "every provider is dead".
+    """
+    if not names:
+        return set()
+    tmpdir = tempfile.mkdtemp(prefix="sl-health-")
+    try:
+        def probe(name: str) -> tuple[str, bool]:
+            out = os.path.join(tmpdir, f"{name}.lrc")
+            try:
+                return name, bool(run_provider(HEALTH_QUERY, name, out, lang_code, True))
+            except Exception:
+                return name, False
+
+        with ThreadPoolExecutor(max_workers=len(names)) as pool:
+            return {name for name, ok in pool.map(probe, names) if ok}
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
 
 
 def _fetch_item(item: WorkItem, *, providers_synced, providers_plain, lang_code,
@@ -270,6 +303,26 @@ def download_targets(
     # -- phase 2: fetch (concurrent) ---------------------------------------
     results: list[tuple[str, str]] = []
     if items and not cancel():
+        # Before hammering one dead provider per track, find out which ones are
+        # serving at all. Skipped providers are reported rather than silently
+        # dropped, since a missing provider is a missing chance at lyrics.
+        candidates = list(dict.fromkeys(providers_synced + providers_plain))
+        healthy = _probe_providers(candidates, lang_code=lang_code)
+        if not healthy:
+            reporter.log("No provider answered the check — "
+                         "asking them all anyway.", "warn")
+        else:
+            dead = [p for p in candidates if p not in healthy]
+            if dead:
+                reporter.log(f"Providers not answering: {', '.join(dead)}", "warn")
+            providers_synced = [p for p in providers_synced if p in healthy]
+            providers_plain = [p for p in providers_plain if p in healthy]
+            working = list(dict.fromkeys(providers_synced + providers_plain))
+            if working:
+                reporter.log(f"Using: {', '.join(working)}", "step")
+            else:
+                reporter.log("No provider can answer — every lookup will fail.", "error")
+
         reporter.status(f"Downloading... 0/{total}", "working")
         with ThreadPoolExecutor(max_workers=min(workers, len(items))) as pool:
             futures = {
