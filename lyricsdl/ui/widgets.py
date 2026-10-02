@@ -329,6 +329,7 @@ class CrateList(tk.Frame):
         self._interactive = interactive
         self._follow = follow     # keep the newest row in view
         self._header = header
+        self._rail_grab: float | None = None   # cursor offset while dragging the rail
 
         self._on_select = on_select
         self._on_activate = on_activate
@@ -339,11 +340,15 @@ class CrateList(tk.Frame):
         self.canvas.bind("<MouseWheel>", self._on_wheel)
         self.canvas.bind("<Button-4>", lambda e: self._wheel(-1))
         self.canvas.bind("<Button-5>", lambda e: self._wheel(1))
+        # The rail is a real scrollbar, so these are bound whether or not the
+        # list is interactive — a read-only sheet still has to be scrollable.
+        self.canvas.bind("<Button-1>", self._on_press)
+        self.canvas.bind("<B1-Motion>", self._on_drag)
+        self.canvas.bind("<ButtonRelease-1>", self._on_release)
+        self.canvas.bind("<Motion>", self._on_motion)
+        self.canvas.bind("<Leave>", self._on_leave)
         if interactive:
-            self.canvas.bind("<Button-1>", self._on_click)
             self.canvas.bind("<Double-Button-1>", self._on_double)
-            self.canvas.bind("<Motion>", self._on_motion)
-            self.canvas.bind("<Leave>", lambda e: self._set_hover(-1))
             self.canvas.bind("<Up>", lambda e: self._move(-1))
             self.canvas.bind("<Down>", lambda e: self._move(1))
             self.canvas.bind("<Home>", lambda e: self._move_to(0))
@@ -500,7 +505,92 @@ class CrateList(tk.Frame):
             self._redraw()
 
     def _on_motion(self, event):
-        self._set_hover(self._row_at(event.y))
+        if self._rail_grab is not None:
+            self._rail_drag(event)
+            return
+        geo = self._rail_geometry()
+        if geo and event.x >= geo[0]:
+            # Over the rail: never highlight a row, and show it can be dragged.
+            if self._hover != -1:
+                self._hover = -1
+                self._redraw()
+            self.canvas.configure(cursor="sb_v_double_arrow")
+            return
+        if self._interactive:
+            self._set_hover(self._row_at(event.y))
+
+    def _on_leave(self, event):
+        self._rail_grab = None
+        self._set_hover(-1)
+        self.canvas.configure(cursor="")
+
+    def _on_press(self, event):
+        """Left click: on the rail it scrolls, anywhere else it selects a row."""
+        if self._rail_press(event):
+            return "break"
+        if self._interactive:
+            self._on_click(event)
+
+    def _on_drag(self, event):
+        self._rail_drag(event)
+
+    def _on_release(self, event):
+        self._rail_grab = None
+
+    def _rail_geometry(self) -> tuple | None:
+        """``(rail_x, top, knob_y, knob_h, travel, max_scroll)``, or None.
+
+        None means nothing scrolls, which is also how the rail's hit area is
+        defined — the strip only responds when a rail is actually drawn there.
+        """
+        w = self.canvas.winfo_width()
+        h = self.canvas.winfo_height()
+        top = self._header_h()
+        track = self._row_top(len(self.rows)) + self._footer_h()
+        view = self._viewport_h()
+        if track <= view or h <= top:
+            return None
+        span = h - top
+        knob_h = max(24.0, span * (view / track))
+        travel = span - knob_h
+        max_scroll = track - view
+        knob_y = top + (self._scroll / max_scroll) * travel
+        return w - RAIL, top, knob_y, knob_h, travel, max_scroll
+
+    @staticmethod
+    def _scroll_for_knob(knob_y: float, top: float, travel: float,
+                         max_scroll: float) -> float:
+        if travel <= 0:
+            return 0.0
+        return max(0.0, min(1.0, (knob_y - top) / travel)) * max_scroll
+
+    def _rail_press(self, event) -> bool:
+        """Handle a press on the rail; True if it was the rail's."""
+        geo = self._rail_geometry()
+        if not geo or event.x < geo[0]:
+            return False
+        rail_x, top, knob_y, knob_h, travel, max_scroll = geo
+        self.canvas.focus_set()
+        self._follow = False        # the user took over; stop chasing rows
+        if not (knob_y <= event.y <= knob_y + knob_h):
+            # The trough behaves like a page: jump the knob to the pointer.
+            self._scroll = self._scroll_for_knob(event.y - knob_h / 2, top, travel, max_scroll)
+            self._clamp_scroll()
+            self._redraw()
+            knob_y = self._rail_geometry()[2]
+        self._rail_grab = event.y - knob_y
+        return True
+
+    def _rail_drag(self, event) -> None:
+        if self._rail_grab is None:
+            return
+        geo = self._rail_geometry()
+        if not geo:
+            return
+        rail_x, top, knob_y, knob_h, travel, max_scroll = geo
+        self._scroll = self._scroll_for_knob(event.y - self._rail_grab, top, travel, max_scroll)
+        self._clamp_scroll()
+        self._redraw()
 
     def _on_wheel(self, event):
         self._wheel(-1 if event.delta > 0 else 1)
@@ -531,6 +621,9 @@ class CrateList(tk.Frame):
         self._changed(pull=True)
 
     def _on_double(self, event):
+        geo = self._rail_geometry()
+        if geo and event.x >= geo[0]:
+            return                      # a double-click on the rail scrolls, not selects
         i = self._row_at(event.y)
         if i >= 0 and self._on_activate:
             self._on_activate(i)
@@ -637,8 +730,9 @@ class CrateList(tk.Frame):
         span = h - top
         knob_h = max(24.0, span * (view / track))
         knob_y = top + (self._scroll / (track - view)) * (span - knob_h)
-        c.create_rectangle(rail_x + 3, knob_y, rail_x + 6, knob_y + knob_h,
-                           outline="", fill=T.mix(T.PANEL, T.STOCK, 0.25))
+        # 6px rather than 3px: a scrollbar you cannot see is one you cannot grab.
+        c.create_rectangle(rail_x + 2, knob_y, rail_x + 8, knob_y + knob_h,
+                           outline="", fill=T.mix(T.PANEL, T.STOCK, 0.35))
 
     def _draw_footer(self, c: tk.Canvas, rail_x: float, y: float):
         c.create_line(T.S.sm, y + 0.5, rail_x - T.S.sm, y + 0.5, fill=T.PANEL_EDGE)
