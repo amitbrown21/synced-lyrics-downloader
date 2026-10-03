@@ -97,6 +97,9 @@ def build() -> Path:
         "--specpath", str(BUILD),
         # customtkinter ships theme JSON and font assets that must travel along.
         "--collect-all", "customtkinter",
+        # The window icon is loaded at runtime, so the PNG must be bundled too:
+        # the exe's embedded icon resource covers the file, not the title bar.
+        "--add-data", f"{ROOT / 'docs' / 'art' / 'icon-256.png'}{os.pathsep}art",
         # The whole lyrics engine, so the frozen app never needs pip.
         "--collect-submodules", "syncedlyrics",
         # requests needs its CA bundle or TLS fails inside the bundle.

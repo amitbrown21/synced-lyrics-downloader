@@ -10,4 +10,4 @@ __all__ = ["config", "library", "providers", "downloader", "ui"]
 
 # Single source of truth for the release version (shown in About, stamped on
 # the Windows executable, and used for the git tag).
-__version__ = "1.0.3"
+__version__ = "1.0.4"

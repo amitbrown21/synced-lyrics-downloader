@@ -21,6 +21,7 @@ from .. import config as app_config
 from .. import library
 from ..downloader import Reporter, download_targets, run_custom_query
 from . import dialogs
+from . import icon
 from . import theme as T
 from .widgets import (CratePane, ResultPane, Row, SPINE_COLORS, Tooltip,
                       reset_font_cache, silk_button)
@@ -72,6 +73,8 @@ class App:
         ctk.set_appearance_mode("dark")
         self.root = ctk.CTk(fg_color=T.CRATE)
         self.root.title(app_config.APP_NAME)
+        # Held on the instance: Tk keeps only a weak reference to the image.
+        self._icon = icon.apply(self.root)
         self.root.minsize(940, 640)
         T.init_fonts(self.root)
         reset_font_cache()   # a fresh root invalidates every cached Font

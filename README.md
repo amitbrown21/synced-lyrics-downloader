@@ -1,8 +1,8 @@
-# 🎵 Synced Lyrics Downloader
+# Synced Lyrics Downloader
 
-![Synced Lyrics Downloader — synced first, plain as fallback](docs/art/readme-hero.png)
+![Synced Lyrics Downloader: the wordmark, a crate of tabbed records, and the four lyric states](docs/art/readme-hero.png)
 
-A desktop GUI app for downloading synced (`.lrc`) lyrics for your local music library. Built with Python and tkinter — no internet browser required, no accounts, no ads.
+A desktop app for downloading synced (`.lrc`) lyrics for your local music library, built with Python and tkinter. It runs on your own machine, with no browser, no account and no ads.
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-lightgrey)
@@ -12,64 +12,59 @@ A desktop GUI app for downloading synced (`.lrc`) lyrics for your local music li
 
 ## Download
 
-Grab the standalone Windows build from the [latest release](https://github.com/amitbrown21/synced-lyrics-downloader/releases/latest):
+The standalone Windows build lives on the [latest release](https://github.com/amitbrown21/synced-lyrics-downloader/releases/latest) page:
 
-**`SyncedLyricsDownloader.exe`** — one file, nothing else to install. No Python, no `pip install`, no `syncedlyrics`: the lyrics engine is bundled inside, and the app falls back to it in-process when the `syncedlyrics` command is not on the machine. Double-click and go.
+**`SyncedLyricsDownloader.exe`** is a single file and installs nothing. The lyrics engine travels inside it, so the machine does not need Python, `pip install` or `syncedlyrics`. When the `syncedlyrics` command is missing, the app calls the bundled copy in-process instead. Double-click it and the window opens.
 
-Windows may warn about an unrecognised publisher the first time (the binary is not code-signed) — choose **More info → Run anyway**. Settings are saved next to the executable.
+Windows may warn about an unrecognised publisher on first launch, because the binary is not code-signed. Choose **More info → Run anyway**. Settings are saved next to the executable.
 
-Running from source is still fully supported; see [Installation](#installation).
+Running from source works too, as described under [Installation](#installation).
 
 ---
 
 ## Screenshots
 
-**First run** — the crate before a folder is opened.
+**First run**: the crate before a folder is opened.
 
 ![First run](docs/screenshots/first-run.png)
 
-**Main window** — artist dividers on the left, album spines behind them, and the selected record's tracklist stamped with its lyric state.
+**Main window**: artist dividers on the left, album spines behind them, and the selected record's tracklist, each track carrying its lyric state at the right edge.
 
-![Synced Lyrics Downloader — main window](docs/screenshots/main-window.png)
+![Synced Lyrics Downloader, main window](docs/screenshots/main-window.png)
 
-**Settings** — provider priority, quality filters and language.
+**Settings**: provider priority, quality filters and language.
 
 ![Settings dialog](docs/screenshots/dialog-options.png)
 
-**Custom Search** — override the query for tracks the providers get wrong.
+**Custom Search**: overrides the query for tracks the providers get wrong.
 
 ![Custom search dialog](docs/screenshots/dialog-custom-search.png)
 
-**Results sheet** — one row per track, so you can see exactly what landed and whether it's synced, plain or nothing. Lookups run several at a time; rows settle in place as they return.
+**Results sheet**: one row per track, showing what landed and whether it is synced, plain or nothing. Lookups run several at a time, and rows settle in place as they return.
 
 ![Results sheet](docs/screenshots/results.png)
 
-**About** — version and project links.
+**About**: version and project links.
 
 ![About dialog](docs/screenshots/dialog-about.png)
 
-*Captured on Windows against the synthetic demo library in `.impeccable/fixtures`.*
+All screenshots were captured on Windows against the synthetic demo library in `.impeccable/fixtures`.
 
 ---
 
 ## Features
 
-- **Synced lyrics first** — always tries `.lrc` with timestamps before falling back to plain text
-- **Everything saved as `.lrc`** — maximum compatibility with all media players
-- **Parallel lookups** — several tracks are fetched at once (4 by default, 1–16 in Settings), so a big library doesn't crawl
-- **Per-track results sheet** — every track gets a row showing its state in words: synced, plain, upgraded, skipped or failed, and which provider answered
-- **Multiple providers** — Lrclib, Musixmatch, Megalobiz, NetEase, Genius (configurable priority)
-- **Smart scanning** — scan selection for missing lyrics, download only what's missing
-- **Custom Search** — override the search query for hard-to-find tracks
-- **Auto-upgrade** — detects plain `.lrc` files and offers to find a synced version
-- **State marks, drawn not emoji** — ✅ synced · 📄 plain · ⚠️ incomplete · ❌ missing, each a distinct vector silhouette so the state survives greyscale and colour-blindness
-- **Folder completeness** — ✅ complete · 🟨 partly complete · ⬜ empty (shown after scanning)
-- **One committed theme** — "The Crate": kraft board on a near-black crate ground
-- **Keyboard shortcuts** — `Ctrl+D` download · `Escape` cancel · `F5` refresh
-- **Double-click a track** to open Custom Search instantly
-- **Remembers window size and position** between sessions
-- **CJK stripping** and non-ASCII rejection to avoid garbage results
-- Works great on **network drives** (NAS, mapped drives)
+- Synced lyrics come first. The app asks for `.lrc` files with timestamps before it accepts plain text, then saves either one as `.lrc` for the widest player support.
+- Lookups run in parallel: four tracks at once by default, between 1 and 16 in Settings, which keeps a large library from crawling.
+- Providers are Lrclib, Musixmatch, Megalobiz, NetEase and Genius, tried in the order you set.
+- The results sheet gives every track a row and names the outcome: synced, plain, upgraded, skipped or failed, plus the provider that answered.
+- A scan finds which tracks in a selection have no lyrics, so you can download only what is missing. Plain `.lrc` files can be detected and upgraded to synced ones.
+- Custom Search replaces the query when a provider keeps missing a track.
+- State marks are drawn vector silhouettes, one shape per state, so the state survives greyscale and colour-blindness. Folder completeness appears after a scan.
+- `Ctrl+D` downloads, `Escape` cancels, `F5` refreshes, and double-clicking a track opens Custom Search.
+- Window size and position are remembered between sessions. CJK lines are stripped and mostly-non-ASCII results rejected, which keeps junk out of the library.
+- Works on network drives such as a NAS or a mapped drive.
+- The visual theme is "The Crate": kraft board on a near-black crate ground.
 
 ---
 
@@ -120,22 +115,22 @@ This writes a single `dist/SyncedLyricsDownloader.exe` (~39 MB) with the GUI the
 
 ### Regenerating the art
 
-The app mark and every shipped raster come out of one generator:
+One generator produces the app mark and every shipped raster:
 
 ```bash
 python tools/make_art.py            # all art, then tests/test_art.py verifies it
 python tools/make_art.py --icon     # just build/icon.ico
 ```
 
-It writes `build/icon.ico` (one adaptive render per size, 16 through 256), the `docs/art/` set — mark PNGs, the wordmark, the README hero and the 1280×640 social card — and `docs/art/provenance.json`. Nothing is hand-drawn, so nothing drifts from `lyricsdl/ui/theme.py`, and each PNG carries its provenance as metadata.
+It writes `build/icon.ico` (one adaptive render per size, 16 through 256), the `docs/art/` set (mark PNGs, the wordmark, the README hero and the 1280×640 social card) and `docs/art/provenance.json`. Nothing is hand-drawn, so nothing drifts from `lyricsdl/ui/theme.py`, and each PNG carries its provenance as metadata.
 
-Verify a build the way a user would meet it — launch it and make it exercise its own engine and window:
+To check a build the way a user meets it, launch it and have it exercise its own engine and window:
 
 ```bash
 python tests/test_exe.py
 ```
 
-That runs the packaged app's `--selftest`, which does a real lookup, builds the real window against a miniature library, and writes a JSON report the test asserts on. The lookup needs the network, so it is reported but not required; everything else is asserted. `--selftest` works on a source checkout too.
+That runs the packaged app's `--selftest`, which does a real lookup, builds the real window against a miniature library, and writes a JSON report the test asserts on. The lookup needs the network, so it is reported but not required; everything else is asserted. `--selftest` also works on a source checkout.
 
 ---
 
@@ -152,6 +147,7 @@ lyricsdl/
   downloader.py                 the download engine — thread-safe, no UI imports
   ui/
     theme.py                    design tokens (colours, metrics, font resolution)
+    icon.py                     loads the generated mark as the window icon
     widgets.py                  crate widgets: canvas lists, drawn state marks, silk buttons
     dialogs.py                  Options, About, Custom Search, upgrade prompt
     app.py                      main window: selection, background jobs, shortcuts
@@ -160,6 +156,7 @@ tests/
   test_downloader.py            engine paths: upgrades, cancellation, parallel lookups
   test_widgets.py               crate list interaction: rail clicks, drags, selection
   test_art.py                   generated art: contrast, clipping, icon sizes, provenance
+  test_icon.py                  window icon loading and its fallbacks
   test_exe.py                   the packaged app's own --selftest
 tools/
   make_art.py                   generates the mark, icon, wordmark and social card
@@ -168,20 +165,15 @@ docs/art/                       generated app art, with provenance.json
 DESIGN.md                       the visual system
 ```
 
-The download engine runs in two phases: a sequential planning pass (which may
-raise the "upgrade to synced?" prompt and settles "Yes to all" in one place),
-then a thread pool that fetches several tracks at once. Each lookup shells out
-to the `syncedlyrics` CLI, so tracks are independent processes and nothing is
-shared but the reporter.
+The engine runs in two phases: a sequential planning pass, which may raise the "upgrade to synced?" prompt and settles "Yes to all" in one place, then a thread pool that fetches several tracks at once. Each lookup shells out to the `syncedlyrics` CLI, so tracks are independent processes and nothing is shared except the reporter.
 
-The screenshots are generated, not hand-cropped — rerun them after UI changes:
+The screenshots are generated rather than hand-cropped, so rerun the capture after UI changes:
 
 ```bash
 python .impeccable/tools/capture.py    # writes .impeccable/review/, then copy into docs/screenshots/
 ```
 
-`lyricsdl/` imports no GUI code outside `lyricsdl/ui/`, so scanning and
-downloading can be scripted or tested headlessly:
+`lyricsdl/` imports no GUI code outside `lyricsdl/ui/`, so scanning and downloading can be scripted or tested headlessly:
 
 ```python
 from lyricsdl import downloader, library
@@ -204,19 +196,19 @@ Run the self-checks with `python tests/test_library.py` and
 2. Select an **artist** from the left panel
 3. Select **albums** and/or **tracks** (or use Select All)
 4. Click **Download Lyrics For Selection**
-5. Watch the results sheet — every track reports what it got
+5. Watch the results sheet, where every track reports what it got
 
 ### Finding missing lyrics
 
 1. Select one or more artists
-2. Click **Scan Missing (Selection)** — shows count of tracks without lyrics
-3. Click **Download Missing (Selection)** — downloads only what's missing
+2. Click **Scan Missing (Selection)** to count the tracks without lyrics
+3. Click **Download Missing (Selection)** to fetch only what's missing
 
 ### Hard-to-find tracks
 
 1. Select an artist and a **single track**
-2. Click **Custom Search** (or double-click the track)
-3. Edit the search query — try removing `(feat. ...)`, `(Live)`, `(Remix)` etc.
+2. Click **Custom Search**, or double-click the track
+3. Edit the search query. Removing `(feat. ...)`, `(Live)` or `(Remix)` usually helps
 4. Use the checkboxes to remove duplicate artist names or strip punctuation
 5. Click **Download using this query**
 
@@ -235,7 +227,7 @@ Open **Settings** to configure:
 | Language | Preferred lyrics language code (e.g. `en`) |
 | Strip CJK lines | Remove Chinese/Japanese/Korean lines from results |
 | Reject mostly non-ASCII | Filter out results in wrong language |
-| Parallel lookups | How many tracks are fetched at once (1–16, default 4) |
+| Parallel lookups | How many tracks are fetched at once (1 to 16, default 4) |
 
 ---
 
@@ -251,7 +243,7 @@ Music/
       02 Track.mp3
 ```
 
-This is the default output of **MusicBrainz Picard**, **beets**, **Mp3tag**, and most music library managers. If your library is organized this way you're good to go.
+This is the default output of **MusicBrainz Picard**, **beets**, **Mp3tag** and most music library managers. If your library is organized this way you're good to go.
 
 ---
 
@@ -286,30 +278,29 @@ Music/
 
 | Provider | Synced | Plain | Notes |
 |----------|--------|-------|-------|
-| Lrclib | ✅ | ❌ | Best first choice, open source |
-| Musixmatch | ✅ | ❌ | Good coverage |
-| Megalobiz | ✅ | ❌ | Good for older tracks |
-| NetEase | ✅ | ❌ | Large Asian library, may give non-English results |
-| Genius | ❌ | ✅ | Plain text only, requires plain fallback enabled |
+| Lrclib | Yes | No | Best first choice, open source |
+| Musixmatch | Yes | No | Good coverage |
+| Megalobiz | Yes | No | Good for older tracks |
+| NetEase | Yes | No | Large Asian library, may give non-English results |
+| Genius | No | Yes | Plain text only, requires plain fallback enabled |
 
 ---
 
 ## Config File
 
-Settings are saved automatically to `lyrics_gui_config.json` in the same folder as the script.
+The app saves your settings to `lyrics_gui_config.json`, in the same folder as the script.
 
 ---
 
 ## Built With
 
-- [Python](https://python.org) — runtime
-- [tkinter](https://docs.python.org/3/library/tkinter.html) — windowing, canvas-rendered crate lists
-- [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) — themed dialogs, scrollbars and controls
-- [syncedlyrics](https://github.com/moehmeni/syncedlyrics) — lyrics fetching library
+- [Python](https://python.org) for the runtime
+- [tkinter](https://docs.python.org/3/library/tkinter.html) for windowing and the canvas-rendered crate lists
+- [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter) for themed dialogs, scrollbars and controls
+- [syncedlyrics](https://github.com/moehmeni/syncedlyrics) for fetching lyrics
 
 ---
 
 ## License
 
-MIT — do whatever you want with it.
-
+MIT. Do whatever you want with it.
