@@ -17,8 +17,8 @@ from typing import Callable, Iterable
 
 from . import config as app_config
 from .library import analyze_lrc, lrc_path_for, infer_artist_from_path, normalize_title
-from .providers import (backend, reject_if_mostly_non_ascii, run_provider,
-                        strip_cjk_lines_in_lrc)
+from .providers import (backend, overruns, reject_if_mostly_non_ascii,
+                        run_provider, strip_cjk_lines_in_lrc)
 
 # States that mean "lyrics were written just now".
 SUCCESS_STATES = ("synced", "plain", "upgraded")
@@ -349,6 +349,13 @@ def download_targets(
     succeeded = sum(1 for state, _ in results if state in SUCCESS_STATES)
     failed = sum(1 for state, _ in results if state == "failed")
     cancelled = cancel()
+
+    # A lookup that overran its timeout was abandoned, not searched. Say so
+    # rather than letting it look like the lyrics simply do not exist.
+    stalled = overruns()
+    if stalled:
+        reporter.log(f"{stalled} lookup(s) overran the provider timeout and were "
+                     "abandoned — check the connection and retry those tracks.", "warn")
 
     reporter.log("\nDone.\n")
     reporter.progress(total, total)

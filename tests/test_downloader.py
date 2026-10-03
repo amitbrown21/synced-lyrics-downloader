@@ -245,6 +245,67 @@ def main() -> None:
         assert track_providers == {"Lrclib", "Megalobiz"}, (
             f"an all-dark probe must not permanently drop providers: {track_providers}")
 
+    # -- the in-process engine must never skip a lookup ----------------------
+    # syncedlyrics.search() is stubbed, so this is offline and fast. A cap used
+    # to refuse lookups once a few were in flight, which silently reported real
+    # songs as missing as soon as the pool got wide.
+    import logging
+    import threading
+    import types
+
+    from lyricsdl import providers
+
+    with tempfile.TemporaryDirectory() as tmp:
+        attempted = []
+        lock = threading.Lock()
+        fake = types.ModuleType("syncedlyrics")
+
+        def search(term, **kwargs):
+            with lock:
+                attempted.append(term)
+            return None
+
+        fake.search = search
+        sys.modules["syncedlyrics"] = fake
+        try:
+            threads = [
+                threading.Thread(target=providers._run_in_process,
+                                 args=(f"query {i}", "Lrclib",
+                                       os.path.join(tmp, f"{i}.lrc"), "en", True))
+                for i in range(12)
+            ]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join()
+            assert len(attempted) == 12, (
+                f"only {len(attempted)}/12 lookups were attempted — one was skipped")
+
+            # An overrun must still count as attempted; it is abandoned, never
+            # silently turned into "not found".
+            original = providers.PROVIDER_TIMEOUT
+            providers.PROVIDER_TIMEOUT = 0.3
+            before = providers.overruns()
+
+            def slow_search(term, **kwargs):
+                time.sleep(1.2)
+                return None
+
+            fake.search = slow_search
+            providers._run_in_process("slow query", "Lrclib",
+                                      os.path.join(tmp, "slow.lrc"), "en", True)
+            assert providers.overruns() > before, "an abandoned lookup went unrecorded"
+            providers.PROVIDER_TIMEOUT = original
+        finally:
+            del sys.modules["syncedlyrics"]
+
+        # Each provider attaches a log handler per lookup, and those would
+        # otherwise pile up for the life of the process.
+        for name in ("Musixmatch", "Lrclib", "NetEase", "Megalobiz", "Genius"):
+            logger = logging.getLogger(name)
+            assert len(logger.handlers) <= 1, (
+                f"{name} leaked log handlers: {len(logger.handlers)}")
+
     print("ok")
 
 

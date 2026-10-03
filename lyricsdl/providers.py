@@ -6,6 +6,7 @@ Wraps the ``syncedlyrics`` command-line tool and applies the quality filters
 
 from __future__ import annotations
 
+import logging
 import os
 import re
 import subprocess
@@ -21,11 +22,41 @@ _LRC_META_PREFIXES = ("[ar:", "[ti:", "[al:", "[by:", "[offset:", "[re:", "[ve:"
 # pool, one hung child would stall the whole job and Cancel could not end it.
 PROVIDER_TIMEOUT = 120
 
-# Cap on lookups left running past their timeout. Python threads cannot be
-# killed, so a hung call is abandoned rather than stopped; this bounds how many
-# such threads can pile up before we refuse to start more.
-_MAX_ABANDONED = 6
-_slots = threading.BoundedSemaphore(_MAX_ABANDONED)
+# Providers attach a log handler in their constructor and send their logs to
+# stderr, which a frozen --windowed build does not have. Silence them; the app
+# reports outcomes itself, on the results sheet.
+_PROVIDER_LOGGERS = ("Musixmatch", "Lrclib", "NetEase", "Megalobiz", "Genius",
+                     "Deezer", "Lyricsify")
+_logging_lock = threading.Lock()
+
+# Lookups that overran the timeout. Python threads cannot be killed, so an
+# overrun is abandoned rather than stopped. Counting is all this does — it must
+# never gate a lookup, because refusing to start one is indistinguishable from
+# "the lyrics do not exist", and a track reported missing when it was never
+# searched is worse than any leak.
+_abandoned_lock = threading.Lock()
+_abandoned_total = 0
+
+
+def overruns() -> int:
+    """How many lookups overran :data:`PROVIDER_TIMEOUT` and were abandoned."""
+    with _abandoned_lock:
+        return _abandoned_total
+
+
+def _silence_provider_loggers() -> None:
+    """Stop syncedlyrics from leaking a log handler per lookup.
+
+    Every provider instance adds a StreamHandler in its constructor, so a bulk
+    job piles up thousands of them, each writing to a stream that does not
+    exist in a windowed build. One NullHandler each, above the effective level,
+    keeps it both quiet and bounded.
+    """
+    with _logging_lock:
+        for name in _PROVIDER_LOGGERS:
+            logger = logging.getLogger(name)
+            logger.handlers = [logging.NullHandler()]
+            logger.setLevel(logging.CRITICAL + 1)
 
 
 def backend() -> str:
@@ -59,14 +90,16 @@ def _run_in_process(query: str, provider: str, out_path: str,
     """Look up *out_path* via the syncedlyrics library, in this process.
 
     The call runs on a daemon thread so a hung request cannot pin the calling
-    worker forever. If it overruns we abandon it — nothing on disk has been
-    touched, because we only ever write the string the call returns.
+    worker forever. If it overruns, the thread is abandoned rather than stopped
+    and this returns having written nothing — but every lookup is attempted, no
+    matter how many have already overrun. Refusing to start one would be
+    indistinguishable from "the lyrics do not exist", and reporting a track as
+    missing when it was never actually searched is worse than any leak.
     """
     import syncedlyrics
 
-    if not _slots.acquire(blocking=False):
-        return  # too many lookups are already stuck; give up quickly
-    box: dict[str, str | None] = {}
+    _silence_provider_loggers()
+    state: dict = {}
 
     def call() -> None:
         try:
@@ -74,7 +107,7 @@ def _run_in_process(query: str, provider: str, out_path: str,
             # runs str.format() on the path, which a brace in a folder name
             # would turn into a crash. Writing the returned string here is
             # byte-identical, since save_lrc_file just writes to_str().
-            box["text"] = syncedlyrics.search(
+            state["text"] = syncedlyrics.search(
                 query,
                 plain_only=not want_synced,
                 synced_only=want_synced,
@@ -82,14 +115,27 @@ def _run_in_process(query: str, provider: str, out_path: str,
                 lang=lang_code or None,
             )
         except Exception:
-            box["text"] = None
+            state["text"] = None
         finally:
-            _slots.release()
+            _silence_provider_loggers()
+            # "done" is set under the same lock the caller checks, so a lookup
+            # that finishes just after the timeout is not miscounted as
+            # abandoned.
+            with _abandoned_lock:
+                state["done"] = True
 
     worker = threading.Thread(target=call, daemon=True)
     worker.start()
     worker.join(PROVIDER_TIMEOUT)
-    text = box.get("text")
+    with _abandoned_lock:
+        abandoned = not state.get("done")
+        if abandoned:
+            global _abandoned_total
+            _abandoned_total += 1
+    if abandoned:
+        return
+
+    text = state.get("text")
     if text:
         with open(out_path, "w", encoding="utf-8") as f:
             f.write(text)
