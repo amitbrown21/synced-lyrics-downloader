@@ -1,9 +1,9 @@
 {
-  "mark": "The Divider",
+  "mark": "The Record",
   "source_of_truth": "lyricsdl/ui/theme.py",
   "generator": "tools/make_art.py",
-  "app_version": "1.0.3",
-  "generated": "2026-10-03T14:04:16Z",
+  "app_version": "1.0.5",
+  "generated": "2026-10-03T15:07:05Z",
   "assets": [
     "icon-1024.png",
     "icon-128.png",
@@ -15,6 +15,7 @@
     "social-preview.png",
     "wordmark-on-dark.png",
     "wordmark.png",
+    "icon.ico",
     "../build/icon.ico"
   ]
 }

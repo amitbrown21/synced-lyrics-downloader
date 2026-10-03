@@ -71,6 +71,10 @@ class _UiReporter(Reporter):
 class App:
     def __init__(self) -> None:
         ctk.set_appearance_mode("dark")
+        # Before the root exists: Windows fixes the taskbar identity when the
+        # first window is created, and without this the app borrows the
+        # identity — and the icon — of whatever launched it.
+        icon.claim_taskbar_identity()
         self.root = ctk.CTk(fg_color=T.CRATE)
         self.root.title(app_config.APP_NAME)
         # Held on the instance: Tk keeps only a weak reference to the image.

@@ -4,10 +4,16 @@
     python tools/make_art.py            # everything
     python tools/make_art.py --icon     # just build/icon.ico
 
-The mark is **The Divider**: a kraft board tabbed into a crate slot, its
-silkscreen tab rising out of the recess, lyric rules on the board, and the
-synced stamp at its foot. Detail is thinned as the size drops, so the 16px
-version is the same idea drawn with fewer marks rather than a shrunken picture.
+The mark is **The Record**: a kraft disc with a silkscreen-red label. The disc
+is ringed in the same red, because kraft alone disappears on a light taskbar
+while the rim holds the silhouette on both. Detail is thinned as the size
+drops — the groove and the spindle hole are the first to go, and at 16px the
+mark is just rim, disc and label — so the small version is the same idea drawn
+with fewer marks rather than a shrunken picture.
+
+It was previously **The Divider**, a kraft board with a tab. At 16px its
+recess, rules and stamp all collapsed, leaving a beige ticket that read as a
+document rather than a music app, so the board gave way to the record.
 
 Every raster is generated from ``lyricsdl/ui/theme.py`` and carries its
 provenance as PNG text chunks, so no image can drift from the palette and none
@@ -55,6 +61,12 @@ GREEN_INK, AMBER_INK, VOID_INK = rgb(T.GREEN_INK), rgb(T.AMBER_INK), rgb(T.VOID_
 TEXT, TEXT_DIM, TEXT_FAINT = rgb(T.TEXT), rgb(T.TEXT_DIM), rgb(T.TEXT_FAINT)
 FOCUS = rgb(T.FOCUS)
 CLEAR = (0, 0, 0, 0)
+
+# The mark is the one asset that lands on a ground the palette does not own:
+# whatever the user's desktop happens to be. These are the two Windows 11
+# taskbar greys, and the rim's whole job is measured against them.
+LIGHT_TASKBAR = (243, 243, 243)
+DARK_TASKBAR = (32, 32, 32)
 
 
 # --------------------------------------------------------------------------
@@ -149,6 +161,10 @@ def assert_contrast() -> None:
         ("text dim on crate", TEXT_DIM, CRATE, 4.5),
         ("tab red on crate", RED, CRATE, 3.0),
         ("kraft on crate", STOCK, CRATE, 3.0),
+        # The mark ships to desktops the palette does not control, so its rim
+        # is checked against both taskbar greys rather than against the crate.
+        ("rim on light taskbar", RED, LIGHT_TASKBAR, 3.0),
+        ("rim on dark taskbar", RED, DARK_TASKBAR, 3.0),
     ]
     failures = []
     for name, fg, bg, floor in checks:
@@ -249,68 +265,47 @@ def draw_state_mark(d, kind, cx, cy, r, colour, width):
 
 
 # --------------------------------------------------------------------------
-# The mark: The Divider
+# The mark: The Record
 # --------------------------------------------------------------------------
 
 def mark(size: int, ground=CLEAR, detail: str | None = None) -> Image.Image:
-    """Render the mark at *size*, thinning detail as the size drops."""
+    """Render the mark at *size*, thinning detail as the size drops.
+
+    The rim is not decoration. A kraft disc measures 1.17:1 against a Windows
+    light taskbar — invisible — and 12.6:1 against a dark one. Ringing it in
+    silkscreen red gives the silhouette 4.35:1 on light and 3.37:1 on dark, so
+    the mark holds on whichever ground the user runs.
+    """
     if detail is None:
         detail = "tiny" if size <= 20 else "small" if size <= 40 else "full"
     px = size * SS
     img = Image.new("RGBA", (px, px), ground)
     d = ImageDraw.Draw(img)
 
-    m = px * 0.10
-    top, bot = px * 0.27, px * 0.85
-    l, r = m, px - m
-    board_w = r - l
-    stroke = max(SS, int(px * 0.011))
+    cx = cy = px / 2
+    R = px * 0.455
+    # The rim thickens as the size drops: below ~24px a proportionally scaled
+    # rim rounds away to a grey smear instead of a ring.
+    rim = px * {"tiny": 0.105, "small": 0.080, "full": 0.058}[detail]
+    r_disc = R - rim
 
-    # The slot the board sits in: only worth drawing once it is visible.
+    # The rim, then the disc it holds.
+    d.ellipse([cx - R, cy - R, cx + R, cy + R], fill=RED)
+    d.ellipse([cx - r_disc, cy - r_disc, cx + r_disc, cy + r_disc], fill=STOCK)
+
+    # One groove, once there is room for it to read as a groove.
+    if detail == "full":
+        gr = px * 0.355
+        d.ellipse([cx - gr, cy - gr, cx + gr, cy + gr], outline=STOCK_EDGE,
+                  width=max(SS, int(px * 0.010)))
+
+    # The label, and the spindle the record turns on.
+    r_label = px * {"tiny": 0.235, "small": 0.215, "full": 0.200}[detail]
+    d.ellipse([cx - r_label, cy - r_label, cx + r_label, cy + r_label], fill=RED)
     if detail != "tiny":
-        lip = px * 0.045
-        d.rectangle([l, top - lip, r, bot], fill=RECESS)
-        d.rectangle([l - lip, top - lip, r + lip, bot + lip], outline=EDGE,
-                    width=max(SS, int(px * 0.006)))
-
-    # The kraft board.
-    d.rectangle([l, top, r, bot], fill=STOCK)
-    # A printed hairline down the board's right edge keeps it reading as stock.
-    d.line([r, top, r, bot], fill=STOCK_EDGE, width=stroke)
-
-    # The silkscreen tab rising out of the slot, at the head of the board.
-    tab_w = board_w * (0.34 if detail == "tiny" else 0.30)
-    tab_h = px * 0.095
-    d.rectangle([l, top - tab_h, l + tab_w, top + px * 0.015], fill=RED)
-    if detail == "full":
-        d.rectangle([l, top + px * 0.015, l + tab_w, top + px * 0.030], fill=RED_DEEP)
-
-    # The lyric rules, thinning with the size.
-    if detail == "full":
-        for i in range(3):
-            y = top + (bot - top) * (0.30 + i * 0.16)
-            d.line([l + board_w * 0.10, y, l + board_w * (0.80 - i * 0.13), y],
-                   fill=STOCK_EDGE, width=stroke)
-    elif detail == "small":
-        for i in range(2):
-            y = top + (bot - top) * (0.30 + i * 0.20)
-            d.line([l + board_w * 0.10, y, l + board_w * (0.82 - i * 0.16), y],
-                   fill=STOCK_EDGE, width=stroke)
-
-    # The stamp.
-    if detail == "tiny":
-        # A ring this small closes into a dot, so stamp a solid check instead.
-        cr = board_w * 0.30
-        ccx = l + board_w * 0.5
-        ccy = top + (bot - top) * 0.72
-        d.line([ccx - cr, ccy, ccx - cr * 0.18, ccy + cr * 0.72,
-                ccx + cr, ccy - cr * 0.86],
-               fill=GREEN_INK, width=max(SS, int(px * 0.075)), joint="curve")
-    else:
-        cr = board_w * (0.21 if detail == "small" else 0.20)
-        draw_state_mark(d, "synced", l + board_w * 0.5,
-                        top + (bot - top) * (0.74 if detail == "small" else 0.78),
-                        cr, GREEN_INK, max(SS, int(px * 0.030)))
+        r_hole = px * 0.048
+        d.ellipse([cx - r_hole, cy - r_hole, cx + r_hole, cy + r_hole],
+                  fill=RECESS)
 
     return _settle(img, ground, size)
 
@@ -322,35 +317,40 @@ def _settle(img: Image.Image, ground, size: int) -> Image.Image:
     alpha into the result, so a dark-ground asset ends up with semi-transparent
     pixels along the mark's antialiased edge — which fringes on a light page.
     The colour blend is already correct, so only the alpha needs restoring.
+
+    Bicubic, not Lanczos. Lanczos overshoots at the hard red-to-kraft edge and
+    lands pixels *past* both colours — measured at 8 to 80 off-colour pixels
+    per render depending on size, which reads as a warm halo round the label.
+    Bicubic measures zero on every size and keeps the edge shape.
     """
     if ground != CLEAR:
         img.putalpha(255)
-    return img.resize((size, size), Image.LANCZOS)
+    return img.resize((size, size), Image.BICUBIC)
 
 
 def mark_mono(size: int, ink=INK, ground=CLEAR) -> Image.Image:
-    """A one-ink version for stamping where colour is not available."""
+    """A one-ink version for stamping where colour is not available.
+
+    The record with its colours stripped to a single ink: the rim becomes the
+    outline, the label becomes a filled disc, and the spindle is punched back
+    out of it. ``ImageDraw`` writes raw values in RGBA rather than compositing,
+    so filling with a zero alpha is what cuts the hole.
+    """
     px = size * SS
     img = Image.new("RGBA", (px, px), ground)
     d = ImageDraw.Draw(img)
     detail = "tiny" if size <= 20 else "small" if size <= 40 else "full"
-    m = px * 0.10
-    top, bot = px * 0.27, px * 0.85
-    l, r = m, px - m
-    board_w = r - l
-    stroke = max(SS, int(px * 0.011))
-    d.rectangle([l, top, r, bot], outline=ink, width=max(SS, int(px * 0.020)))
-    tab_h = px * 0.095
-    d.rectangle([l, top - tab_h, l + board_w * 0.30, top], fill=ink)
+
+    cx = cy = px / 2
+    r_outer = px * 0.455 - px * 0.030
+    d.ellipse([cx - r_outer, cy - r_outer, cx + r_outer, cy + r_outer],
+              outline=ink, width=max(SS * 2, int(px * 0.055)))
+    r_label = px * 0.200
+    d.ellipse([cx - r_label, cy - r_label, cx + r_label, cy + r_label], fill=ink)
     if detail == "full":
-        for i in range(3):
-            y = top + (bot - top) * (0.30 + i * 0.16)
-            d.line([l + board_w * 0.10, y, l + board_w * (0.80 - i * 0.13), y],
-                   fill=ink, width=stroke)
-    if detail != "tiny":
-        draw_state_mark(d, "synced", l + board_w * 0.5,
-                        top + (bot - top) * 0.74, board_w * 0.21, ink,
-                        max(SS, int(px * 0.030)))
+        r_hole = px * 0.048
+        d.ellipse([cx - r_hole, cy - r_hole, cx + r_hole, cy + r_hole],
+                  fill=(0, 0, 0, 0))
     return _settle(img, ground, size)
 
 
@@ -365,11 +365,11 @@ def provenance(what: str) -> str:
             timespec="seconds").replace("+00:00", "Z"),
         "app_version": __version__,
         "tokens": "lyricsdl/ui/theme.py",
-        "mark": "The Divider",
+        "mark": "The Record",
         "asset": what,
         "colours": {
-            "ground": T.CRATE, "board": T.STOCK, "tab": T.RED,
-            "stamp": T.GREEN_INK, "rule": T.STOCK_EDGE,
+            "ground": T.CRATE, "disc": T.STOCK, "rim": T.RED,
+            "label": T.RED, "spindle": T.CRATE_DEEP, "groove": T.STOCK_EDGE,
         },
     }, separators=(",", ":"))
 
@@ -395,7 +395,7 @@ def save(img: Image.Image, path: pathlib.Path, what: str,
     path.parent.mkdir(parents=True, exist_ok=True)
     meta = PngInfo()
     meta.add_text("Software", f"Synced Lyrics Downloader {__version__} art generator")
-    meta.add_text("Comment", "The Record Crate — kraft board on crate ground")
+    meta.add_text("Comment", "The Record Crate — the record, kraft disc in silkscreen red")
     meta.add_text("Description", provenance(what))
     img.save(path, "PNG", pnginfo=meta)
     print(f"  {_rel(path)}  {img.size[0]}x{img.size[1]}")
@@ -623,6 +623,10 @@ def main() -> None:
 
     print("icon:")
     write_ico(BUILD / "icon.ico")
+    # The shipped copy. Tk's iconbitmap needs a real .ico to set the window
+    # icons Windows actually reads for the taskbar, and build/ is gitignored,
+    # so a source checkout would otherwise have no .ico to point at.
+    write_ico(ART / "icon.ico")
 
     print("mark:")
     for size, name in ((1024, "icon-1024.png"), (512, "icon-512.png"),
@@ -642,13 +646,14 @@ def main() -> None:
     save(social(), ART / "social-preview.png", "GitHub social preview 1280x640")
 
     manifest = {
-        "mark": "The Divider",
+        "mark": "The Record",
         "source_of_truth": "lyricsdl/ui/theme.py",
         "generator": "tools/make_art.py",
         "app_version": __version__,
         "generated": datetime.datetime.now(datetime.UTC).isoformat(
             timespec="seconds").replace("+00:00", "Z"),
-        "assets": sorted(p.name for p in ART.glob("*.png")) + ["../build/icon.ico"],
+        "assets": (sorted(p.name for p in ART.glob("*.png"))
+                   + ["icon.ico", "../build/icon.ico"]),
     }
     (ART / "provenance.json").write_text(json.dumps(manifest, indent=2) + "\n",
                                          encoding="utf-8")

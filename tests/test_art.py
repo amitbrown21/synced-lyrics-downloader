@@ -70,18 +70,51 @@ def main() -> None:
             f"{name} has semi-transparent pixels (min alpha {low}) — a masked "
             "paste left edge fringe on an opaque ground")
 
-    # -- the 16px mark must keep all three parts --------------------------
+    # -- the 16px mark must keep all three parts: rim, disc, label --------
     small = A.mark(16).convert("RGB")
-    colours = small.getcolors(4096)
-    kraft = sum(n for n, c in colours
-                if abs(c[0] - 232) < 14 and abs(c[1] - 226) < 14)
-    red = sum(n for n, c in colours
-              if c[0] > 140 and c[1] < 90 and c[2] < 80)
-    green = sum(n for n, c in colours
-                if c[1] > c[0] and c[1] > c[2] and c[1] < 150)
-    assert kraft > 40, f"16px board is barely there ({kraft}px)"
-    assert red >= 4, f"16px silkscreen tab has only {red}px — illegible"
-    assert green >= 4, f"16px synced stamp has only {green}px — illegible"
+    w, h = small.size
+    px = small.load()
+
+    def reddish(c):
+        return c[0] > 150 and c[1] < 110 and c[2] < 100
+
+    def lightish(c):
+        return sum(c[:3]) > 450
+
+    red = light = 0
+    rim_at_edge = label_at_centre = False
+    for y in range(h):
+        for x in range(w):
+            c = px[x, y]
+            radius = max(abs(x - w / 2 + 0.5), abs(y - h / 2 + 0.5))
+            if reddish(c):
+                red += 1
+                rim_at_edge |= radius > w * 0.30
+                label_at_centre |= radius < w * 0.18
+            if lightish(c):
+                light += 1
+    assert light >= 35, f"16px kraft disc is barely there ({light}px)"
+    assert red >= 70, f"16px rim and label have only {red}px between them"
+
+    # Rim and label are both red, so counting red proves nothing on its own:
+    # the rim has to reach the edge and the label has to reach the middle. A
+    # disc that lost its rim vanishes on a light taskbar, which is the whole
+    # reason the rim exists.
+    assert rim_at_edge, "16px rim is gone — the mark loses its silhouette on light"
+    assert label_at_centre, "16px label is gone — the disc reads as a blank ring"
+
+    # The rim is load-bearing, and this is the measurement that says so: the
+    # kraft disc alone all but vanishes on a light taskbar, so if someone ever
+    # darkens kraft or lightens red past these numbers, the mark loses the
+    # ground it was drawn for and this test says why.
+    bare_disc = A.contrast(A.STOCK, A.LIGHT_TASKBAR)
+    rim = A.contrast(A.RED, A.LIGHT_TASKBAR)
+    assert bare_disc < 1.5, (
+        f"kraft alone now measures {bare_disc:.2f}:1 on a light taskbar — the "
+        "rim's rationale no longer holds, so re-check the mark's structure")
+    assert rim >= 3.0, (
+        f"the rim measures {rim:.2f}:1 on a light taskbar and must hold the "
+        "silhouette there")
 
     # -- the .ico must be a valid directory of the sizes Windows asks for --
     import tempfile

@@ -44,6 +44,10 @@ def make_icon() -> Path:
     BUILD.mkdir(exist_ok=True)
     icon = BUILD / "icon.ico"
     make_art.write_ico(icon)
+    # The shipped copy is what gets bundled for the runtime window icon, so
+    # refresh it here too rather than trusting whatever is committed.
+    make_art.ART.mkdir(parents=True, exist_ok=True)
+    make_art.write_ico(make_art.ART / "icon.ico")
     return icon
 
 
@@ -97,9 +101,12 @@ def build() -> Path:
         "--specpath", str(BUILD),
         # customtkinter ships theme JSON and font assets that must travel along.
         "--collect-all", "customtkinter",
-        # The window icon is loaded at runtime, so the PNG must be bundled too:
+        # The window icon is loaded at runtime, so this must be bundled too:
         # the exe's embedded icon resource covers the file, not the title bar.
+        # The PNG feeds iconphoto (the class icon) and the .ico feeds
+        # iconbitmap (WM_SETICON, which is what the taskbar reads).
         "--add-data", f"{ROOT / 'docs' / 'art' / 'icon-256.png'}{os.pathsep}art",
+        "--add-data", f"{ROOT / 'docs' / 'art' / 'icon.ico'}{os.pathsep}art",
         # The whole lyrics engine, so the frozen app never needs pip.
         "--collect-submodules", "syncedlyrics",
         # requests needs its CA bundle or TLS fails inside the bundle.

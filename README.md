@@ -122,7 +122,7 @@ python tools/make_art.py            # all art, then tests/test_art.py verifies i
 python tools/make_art.py --icon     # just build/icon.ico
 ```
 
-It writes `build/icon.ico` (one adaptive render per size, 16 through 256), the `docs/art/` set (mark PNGs, the wordmark, the README hero and the 1280×640 social card) and `docs/art/provenance.json`. Nothing is hand-drawn, so nothing drifts from `lyricsdl/ui/theme.py`, and each PNG carries its provenance as metadata.
+It writes `build/icon.ico` (one adaptive render per size, 16 through 256), the `docs/art/` set (the mark PNGs, the same mark as `icon.ico` for Windows to use as the window icon, the wordmark, the README hero and the 1280×640 social card) and `docs/art/provenance.json`. Nothing is hand-drawn, so nothing drifts from `lyricsdl/ui/theme.py`, and each PNG carries its provenance as metadata.
 
 To check a build the way a user meets it, launch it and have it exercise its own engine and window:
 
@@ -147,7 +147,7 @@ lyricsdl/
   downloader.py                 the download engine — thread-safe, no UI imports
   ui/
     theme.py                    design tokens (colours, metrics, font resolution)
-    icon.py                     loads the generated mark as the window icon
+    icon.py                     window and taskbar icon, and the app's taskbar identity
     widgets.py                  crate widgets: canvas lists, drawn state marks, silk buttons
     dialogs.py                  Options, About, Custom Search, upgrade prompt
     app.py                      main window: selection, background jobs, shortcuts
@@ -156,7 +156,7 @@ tests/
   test_downloader.py            engine paths: upgrades, cancellation, parallel lookups
   test_widgets.py               crate list interaction: rail clicks, drags, selection
   test_art.py                   generated art: contrast, clipping, icon sizes, provenance
-  test_icon.py                  window icon loading and its fallbacks
+  test_icon.py                  window and taskbar icon loading, identity, fallbacks
   test_exe.py                   the packaged app's own --selftest
 tools/
   make_art.py                   generates the mark, icon, wordmark and social card
