@@ -31,43 +31,19 @@ sys.path.insert(0, str(ROOT))
 
 
 def make_icon() -> Path:
-    """Draw the app icon from the design palette and return the .ico path."""
-    from PIL import Image, ImageDraw
+    """Generate the application icon from the shipped design tokens.
 
-    from lyricsdl.ui import theme as T
+    Delegates to ``tools/make_art.py`` so the icon, the wordmark and the social
+    card all come out of one generator and cannot drift apart or from the
+    palette. It also writes one adaptive render per icon size rather than
+    downsampling a single image for every entry.
+    """
+    sys.path.insert(0, str(ROOT / "tools"))
+    import make_art
 
-    def hexc(value: str) -> tuple[int, int, int]:
-        return tuple(int(value[i:i + 2], 16) for i in (1, 3, 5))
-
-    def render(size: int) -> Image.Image:
-        # Draw large, then downsample: keeps the strokes even at 16px.
-        ss = 8
-        px = size * ss
-        img = Image.new("RGB", (px, px), hexc(T.STOCK))
-        d = ImageDraw.Draw(img)
-
-        # The crate's signature element: a silkscreen tab down the left edge.
-        tab = int(px * 0.22)
-        d.rectangle([0, 0, tab, px], fill=hexc(T.RED))
-
-        # The synced state mark — the same circled check the lists stamp.
-        cx = tab + (px - tab) / 2
-        cy = px / 2
-        r = (px - tab) * 0.34
-        w = max(ss, int(px * 0.055))
-        d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=hexc(T.GREEN_INK), width=w)
-        d.line(
-            [cx - r * 0.45, cy, cx - r * 0.08, cy + r * 0.42, cx + r * 0.5, cy - r * 0.4],
-            fill=hexc(T.GREEN_INK), width=w, joint="curve",
-        )
-        return img.resize((size, size), Image.LANCZOS)
-
-    sizes = [16, 24, 32, 48, 64, 128, 256]
-    base = render(256)
     BUILD.mkdir(exist_ok=True)
     icon = BUILD / "icon.ico"
-    base.save(icon, format="ICO", sizes=[(s, s) for s in sizes])
-    print(f"icon: {icon} ({', '.join(str(s) for s in sizes)})")
+    make_art.write_ico(icon)
     return icon
 
 

@@ -1,5 +1,7 @@
 # 🎵 Synced Lyrics Downloader
 
+![Synced Lyrics Downloader — synced first, plain as fallback](docs/art/readme-hero.png)
+
 A desktop GUI app for downloading synced (`.lrc`) lyrics for your local music library. Built with Python and tkinter — no internet browser required, no accounts, no ads.
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-blue)
@@ -116,6 +118,17 @@ python build_exe.py
 
 This writes a single `dist/SyncedLyricsDownloader.exe` (~39 MB) with the GUI theme assets, the lyrics engine and the TLS certificates bundled in. The icon is drawn from the same design tokens as the UI, so it cannot drift from the palette, and the version stamped into the file comes from `lyricsdl.__version__`.
 
+### Regenerating the art
+
+The app mark and every shipped raster come out of one generator:
+
+```bash
+python tools/make_art.py            # all art, then tests/test_art.py verifies it
+python tools/make_art.py --icon     # just build/icon.ico
+```
+
+It writes `build/icon.ico` (one adaptive render per size, 16 through 256), the `docs/art/` set — mark PNGs, the wordmark, the README hero and the 1280×640 social card — and `docs/art/provenance.json`. Nothing is hand-drawn, so nothing drifts from `lyricsdl/ui/theme.py`, and each PNG carries its provenance as metadata.
+
 Verify a build the way a user would meet it — launch it and make it exercise its own engine and window:
 
 ```bash
@@ -145,7 +158,13 @@ lyricsdl/
 tests/
   test_library.py               lyric parsing and state classification
   test_downloader.py            engine paths: upgrades, cancellation, parallel lookups
+  test_widgets.py               crate list interaction: rail clicks, drags, selection
+  test_art.py                   generated art: contrast, clipping, icon sizes, provenance
+  test_exe.py                   the packaged app's own --selftest
+tools/
+  make_art.py                   generates the mark, icon, wordmark and social card
 docs/screenshots/               shipping screenshots
+docs/art/                       generated app art, with provenance.json
 DESIGN.md                       the visual system
 ```
 
