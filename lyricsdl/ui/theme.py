@@ -31,7 +31,7 @@ RED = "#C8452F"          # silkscreen accent — the pulled-forward tab
 RED_DEEP = "#A93622"
 RED_SOFT = "#E2836C"
 
-GREEN = "#5C6B52"        # filed / complete
+GREEN = "#6F8163"        # filed / complete
 AMBER = "#C08A2E"        # warning
 VOID = "#8A8377"         # missing / none
 

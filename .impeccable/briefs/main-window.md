@@ -27,7 +27,7 @@ The whole application window and its dialogs (Options, About, Custom Search, Pla
 
 **THESIS.** A music library is a record crate; you flip dividers, pull a record forward, and read its tracklist. It refuses the category's sidebar-plus-dark-data-table arrangement.
 
-**OWN-WORLD.** Kraft board (#E8E2D2) on a near-black crate ground (#2B2A28); tabbed dividers with silkscreen ink; exactly one saturated tab red (#C8452F) marks the pulled-forward selection, and a muted crate green (#5C6B52) marks filed/complete. Labels are condensed grotesque caps; tracklists are ruled rows. Strip all content and it still reads as a crate of tabbed records.
+**OWN-WORLD.** Kraft board (#E8E2D2) on a near-black crate ground (#2B2A28); tabbed dividers with silkscreen ink; exactly one saturated tab red (#C8452F) marks the pulled-forward selection, and a muted crate green (#6F8163) marks filed/complete. Labels are condensed grotesque caps; tracklists are ruled rows. Strip all content and it still reads as a crate of tabbed records.
 
 **STORY.** The user sees the library as a crate — artist dividers, album spines, the selected record's tracklist — each track stamped with its lyric state, and a ruled log sheet recording the job.
 

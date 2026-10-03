@@ -16,7 +16,7 @@ colors:
   silkscreen-red: "#C8452F"
   silkscreen-red-deep: "#A93622"
   silkscreen-red-soft: "#E2836C"
-  filed-green: "#5C6B52"
+  filed-green: "#6F8163"
   pending-amber: "#C08A2E"
   absent-grey: "#8A8377"
   filed-green-ink: "#3F4C38"
@@ -191,7 +191,7 @@ board, one for kraft.
 - **Silkscreen Tab Red** (#C8452F): the single accent. It marks the pulled-forward selection (the tab of the selected artist divider), the primary action button, the 2px printed rule under each pane header, and the 2px rule under a dialog title. Its rarity is the entire effect. **Silkscreen Red Deep** (#A93622) is its hover; **Silkscreen Red Soft** (#E2836C) is its error-text form on the dark board.
 
 ### Secondary
-- **Filed Green** (#5C6B52): a record has synced lyrics, or a folder is complete. Paired with the circled-check mark.
+- **Filed Green** (#6F8163): a record has synced lyrics, or a folder is complete. Paired with the circled-check mark. Lifted from #5C6B52, which measured 2.88:1 on Crate Ground and 2.51:1 on Panel — below the 3:1 this system asks of a mark.
 - **Pending Amber** (#C08A2E): lyrics exist but are incomplete, or a folder is partly filled. Paired with the struck-triangle or half-filled-circle mark.
 - **Absent Grey** (#8A8377): no lyrics at all. Deliberately the quietest state — absence should not shout.
 

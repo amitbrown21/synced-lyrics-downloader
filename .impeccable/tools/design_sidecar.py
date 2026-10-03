@@ -188,6 +188,11 @@ MARK_SVG = {
 
 
 def components() -> list[dict]:
+    # Read green from the tokens rather than hardcoding it: the showcase pinned
+    # it as a literal and went stale the moment the token moved to clear its
+    # contrast floor.
+    _tokens = read_colors()
+    green = _tokens.get("GREEN", "#6F8163")
     btn = (
         ".ds-nav { display:flex; gap:8px; align-items:center; }"
         ".ds-btn { font-family:'Bahnschrift SemiCondensed','Arial Narrow','Segoe UI',sans-serif;"
@@ -293,7 +298,7 @@ def components() -> list[dict]:
             "html": "<div class=\"ds-crate\">"
                     "<div class=\"ds-row\"><span class=\"ds-row__num\">01</span>"
                     "<span class=\"ds-row__title\">Footnote</span>"
-                    "<span class=\"ds-row__meta\">04:12</span>" + MARK_SVG["synced"].format(c="#5C6B52") + "</div>"
+                    "<span class=\"ds-row__meta\">04:12</span>" + MARK_SVG["synced"].format(c=green) + "</div>"
                     "<div class=\"ds-row\"><span class=\"ds-row__num\">02</span>"
                     "<span class=\"ds-row__title\">Marginalia</span>"
                     "<span class=\"ds-row__meta\">02:58</span>" + MARK_SVG["plain"].format(c="#8A8377") + "</div>"
@@ -329,7 +334,7 @@ def components() -> list[dict]:
                     + "".join(
                         f"<span class=\"ds-mark\">{MARK_SVG[k].format(c=c)}<span>{label}</span></span>"
                         for k, label, c in (
-                            ("synced", "synced", "#5C6B52"),
+                            ("synced", "synced", green),
                             ("plain", "plain", "#8A8377"),
                             ("incomplete", "incomplete", "#C08A2E"),
                             ("none", "missing", "#8A8377"),
