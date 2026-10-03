@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-03T13:57:48.229386Z",
+  "generatedAt": "2026-10-03T14:04:16.812369Z",
   "title": "Design System: Synced Lyrics Downloader",
   "extensions": {
     "colorMeta": {
@@ -337,16 +337,16 @@
       "text-faint": {
         "role": "neutral",
         "displayName": "Text Faint",
-        "canonical": "#867E6E",
+        "canonical": "#989081",
         "tonalRamp": [
-          "#100A01",
-          "#2B2417",
-          "#484133",
-          "#686051",
-          "#898171",
-          "#ACA493",
-          "#D1C8B7",
-          "#F6EEDC"
+          "#100A02",
+          "#2B2418",
+          "#484134",
+          "#686052",
+          "#898173",
+          "#ACA495",
+          "#D1C8B8",
+          "#F6EDDD"
         ]
       },
       "focus": {
@@ -436,7 +436,7 @@
       "refersTo": "silk-button-primary",
       "description": "The action vocabulary: flat, hard-edged, condensed caps. Red is the one primary action per surface.",
       "html": "<div class=\"ds-nav\"><button class=\"ds-btn ds-btn-primary\">DOWNLOAD SELECTION</button><button class=\"ds-btn ds-btn-secondary\">CANCEL</button><button class=\"ds-btn\" disabled>SILK DISABLED</button></div>",
-      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-nav { display:flex; gap:8px; align-items:center; }.ds-btn { font-family:'Bahnschrift SemiCondensed','Arial Narrow','Segoe UI',sans-serif; font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; height:30px; padding:0 18px; border-radius:0; border:1px solid transparent; cursor:pointer; transition:background .12s linear; }.ds-btn-primary { background:#C8452F; color:#E8E2D2; }.ds-btn-primary:hover { background:#A93622; }.ds-btn-primary:focus-visible { outline:2px solid #F0C46A; outline-offset:2px; }.ds-btn-secondary { background:#2B2A28; color:#EDE8DC; border-color:#3A3835; }.ds-btn-secondary:hover { background:#343230; }.ds-btn-secondary:focus-visible { outline:2px solid #F0C46A; outline-offset:2px; }.ds-btn[disabled] { background:#211F1D; color:#867E6E; cursor:default; }"
+      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-nav { display:flex; gap:8px; align-items:center; }.ds-btn { font-family:'Bahnschrift SemiCondensed','Arial Narrow','Segoe UI',sans-serif; font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; height:30px; padding:0 18px; border-radius:0; border:1px solid transparent; cursor:pointer; transition:background .12s linear; }.ds-btn-primary { background:#C8452F; color:#E8E2D2; }.ds-btn-primary:hover { background:#A93622; }.ds-btn-primary:focus-visible { outline:2px solid #F0C46A; outline-offset:2px; }.ds-btn-secondary { background:#2B2A28; color:#EDE8DC; border-color:#3A3835; }.ds-btn-secondary:hover { background:#343230; }.ds-btn-secondary:focus-visible { outline:2px solid #F0C46A; outline-offset:2px; }.ds-btn[disabled] { background:#211F1D; color:#989081; cursor:default; }"
     },
     {
       "name": "Crate Track Rows",
@@ -444,7 +444,7 @@
       "refersTo": "crate-row-track",
       "description": "The tracklist: recessed rows ruled by a hairline, mono number and running-time slot, state mark at the right. The selected row is pulled 7px forward onto kraft.",
       "html": "<div class=\"ds-crate\"><div class=\"ds-row\"><span class=\"ds-row__num\">01</span><span class=\"ds-row__title\">Footnote</span><span class=\"ds-row__meta\">04:12</span><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#6F8163\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8.5\"/><path d=\"M7.2 11.2l2.6 2.6 5-5.2\"/></svg></div><div class=\"ds-row\"><span class=\"ds-row__num\">02</span><span class=\"ds-row__title\">Marginalia</span><span class=\"ds-row__meta\">02:58</span><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#8A8377\" stroke-width=\"2\" stroke-linecap=\"round\"><rect x=\"2.5\" y=\"2.5\" width=\"17\" height=\"17\"/><path d=\"M7 9h9M7 14h6\"/></svg></div><div class=\"ds-row ds-row--sel\"><span class=\"ds-row__num\">03</span><span class=\"ds-row__title\">Erratum</span><span class=\"ds-row__meta\">03:41</span><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#8A5A12\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"miter\"><path d=\"M11 2.5L20 19H2z\"/><path d=\"M11 8.5v5\"/><path d=\"M11 16.2v.1\"/></svg></div><div class=\"ds-row\"><span class=\"ds-row__num\">05</span><span class=\"ds-row__title\">Appendix</span><span class=\"ds-row__meta\">MP3</span><svg width=\"22\" height=\"22\" viewBox=\"0 0 22 22\" fill=\"none\" stroke=\"#8A8377\" stroke-width=\"2\" stroke-linecap=\"round\"><circle cx=\"11\" cy=\"11\" r=\"8.5\"/><path d=\"M6.5 15.5l9-9\"/></svg></div></div>",
-      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-crate { font-family:'Bahnschrift','Segoe UI',sans-serif; width:320px; background:#191716; padding:0; }.ds-row { display:flex; align-items:center; height:24px; font-size:11px; color:#EDE8DC; border-bottom:1px solid #3A3835; padding:0 8px; }.ds-row--sel { background:#E8E2D2; color:#1C1A17; border-bottom:none; transform:translateX(7px); }.ds-row__num { font-family:'Cascadia Mono',Consolas,monospace; font-size:9px; color:#867E6E; width:30px; }.ds-row--sel .ds-row__num { color:#5A5344; }.ds-row__title { flex:1; }.ds-row__meta { font-family:'Cascadia Mono',Consolas,monospace; font-size:9px; color:#867E6E; margin-right:18px; }.ds-row--sel .ds-row__meta { color:#5A5344; }"
+      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-crate { font-family:'Bahnschrift','Segoe UI',sans-serif; width:320px; background:#191716; padding:0; }.ds-row { display:flex; align-items:center; height:24px; font-size:11px; color:#EDE8DC; border-bottom:1px solid #3A3835; padding:0 8px; }.ds-row--sel { background:#E8E2D2; color:#1C1A17; border-bottom:none; transform:translateX(7px); }.ds-row__num { font-family:'Cascadia Mono',Consolas,monospace; font-size:9px; color:#989081; width:30px; }.ds-row--sel .ds-row__num { color:#5A5344; }.ds-row__title { flex:1; }.ds-row__meta { font-family:'Cascadia Mono',Consolas,monospace; font-size:9px; color:#989081; margin-right:18px; }.ds-row--sel .ds-row__meta { color:#5A5344; }"
     },
     {
       "name": "Artist Divider",
@@ -468,7 +468,7 @@
       "refersTo": "pane-header",
       "description": "Each of the three bays: a raised panel header carrying the title, a mono count and an All/Clear toggle, over the 2px silkscreen rule that makes it read as a crate bay.",
       "html": "<div class=\"ds-pane\"><div class=\"ds-pane__head\"><span class=\"ds-pane__title\">Albums</span><span class=\"ds-pane__count\">2</span><button class=\"ds-toggle\" style=\"margin-left:auto\">ALL</button></div><div class=\"ds-pane__rule\"></div></div>",
-      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-pane { width:330px; background:#191716; }.ds-pane__head { display:flex; align-items:center; height:30px; background:#2B2A28; padding:0 12px 0 12px; gap:8px; }.ds-pane__title { font-family:'Bahnschrift SemiCondensed','Arial Narrow','Segoe UI',sans-serif; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#A79E8C; }.ds-pane__count { font-family:'Cascadia Mono',Consolas,monospace; font-size:9px; color:#867E6E; }.ds-pane__rule { height:2px; background:#C8452F; }.ds-toggle { font-family:'Bahnschrift SemiCondensed','Arial Narrow','Segoe UI',sans-serif; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; height:22px; padding:0 10px; background:transparent; color:#A79E8C; border:0; border-radius:0; cursor:pointer; }.ds-toggle:hover { background:#343230; color:#EDE8DC; }.ds-toggle:focus-visible { outline:2px solid #F0C46A; }"
+      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-pane { width:330px; background:#191716; }.ds-pane__head { display:flex; align-items:center; height:30px; background:#2B2A28; padding:0 12px 0 12px; gap:8px; }.ds-pane__title { font-family:'Bahnschrift SemiCondensed','Arial Narrow','Segoe UI',sans-serif; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:#A79E8C; }.ds-pane__count { font-family:'Cascadia Mono',Consolas,monospace; font-size:9px; color:#989081; }.ds-pane__rule { height:2px; background:#C8452F; }.ds-toggle { font-family:'Bahnschrift SemiCondensed','Arial Narrow','Segoe UI',sans-serif; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; height:22px; padding:0 10px; background:transparent; color:#A79E8C; border:0; border-radius:0; cursor:pointer; }.ds-toggle:hover { background:#343230; color:#EDE8DC; }.ds-toggle:focus-visible { outline:2px solid #F0C46A; }"
     },
     {
       "name": "Log Sheet",
@@ -484,7 +484,7 @@
       "refersTo": "entry",
       "description": "Square, panel-filled, 1px edge stroke. Focus keeps the stroke and the caret; no glow, no ring, no colour shift \u2014 focus is not a colour event in this world.",
       "html": "<input class=\"ds-field\" value=\"The Marginal Notes: Annotated - Marginalia\">",
-      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-field { width:340px; height:34px; background:#2B2A28; border:1px solid #3A3835; border-radius:0; color:#EDE8DC; padding:0 10px; font-size:12px; font-family:'Bahnschrift','Segoe UI',sans-serif; }.ds-field:focus { outline:none; border-color:#3A3835; }.ds-field::placeholder { color:#867E6E; }"
+      "css": "font-family: Bahnschrift, 'Segoe UI', Helvetica, sans-serif;background: #211F1D; color: #EDE8DC; padding: 18px;display: flex; gap: 10px; align-items: center; flex-wrap: wrap;.ds-field { width:340px; height:34px; background:#2B2A28; border:1px solid #3A3835; border-radius:0; color:#EDE8DC; padding:0 10px; font-size:12px; font-family:'Bahnschrift','Segoe UI',sans-serif; }.ds-field:focus { outline:none; border-color:#3A3835; }.ds-field::placeholder { color:#989081; }"
     }
   ],
   "narrative": {

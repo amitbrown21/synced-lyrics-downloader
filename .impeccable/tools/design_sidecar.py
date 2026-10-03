@@ -205,7 +205,7 @@ def components() -> list[dict]:
         ".ds-btn-secondary { background:#2B2A28; color:#EDE8DC; border-color:#3A3835; }"
         ".ds-btn-secondary:hover { background:#343230; }"
         ".ds-btn-secondary:focus-visible { outline:2px solid #F0C46A; outline-offset:2px; }"
-        ".ds-btn[disabled] { background:#211F1D; color:#867E6E; cursor:default; }"
+        ".ds-btn[disabled] { background:#211F1D; color:#989081; cursor:default; }"
     )
     rows = (
         ".ds-crate { font-family:'Bahnschrift','Segoe UI',sans-serif; width:320px;"
@@ -215,11 +215,11 @@ def components() -> list[dict]:
         ".ds-row--sel { background:#E8E2D2; color:#1C1A17; border-bottom:none;"
         " transform:translateX(7px); }"
         ".ds-row__num { font-family:'Cascadia Mono',Consolas,monospace; font-size:9px;"
-        " color:#867E6E; width:30px; }"
+        " color:#989081; width:30px; }"
         ".ds-row--sel .ds-row__num { color:#5A5344; }"
         ".ds-row__title { flex:1; }"
         ".ds-row__meta { font-family:'Cascadia Mono',Consolas,monospace; font-size:9px;"
-        " color:#867E6E; margin-right:18px; }"
+        " color:#989081; margin-right:18px; }"
         ".ds-row--sel .ds-row__meta { color:#5A5344; }"
     )
     divider = (
@@ -256,7 +256,7 @@ def components() -> list[dict]:
         " border-radius:0; color:#EDE8DC; padding:0 10px; font-size:12px;"
         " font-family:'Bahnschrift','Segoe UI',sans-serif; }"
         ".ds-field:focus { outline:none; border-color:#3A3835; }"
-        ".ds-field::placeholder { color:#867E6E; }"
+        ".ds-field::placeholder { color:#989081; }"
     )
     toggle = (
         ".ds-toggle { font-family:'Bahnschrift SemiCondensed','Arial Narrow','Segoe UI',sans-serif;"
@@ -274,7 +274,7 @@ def components() -> list[dict]:
         " font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase;"
         " color:#A79E8C; }"
         ".ds-pane__count { font-family:'Cascadia Mono',Consolas,monospace; font-size:9px;"
-        " color:#867E6E; }"
+        " color:#989081; }"
         ".ds-pane__rule { height:2px; background:#C8452F; }"
     )
 

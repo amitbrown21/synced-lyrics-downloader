@@ -189,7 +189,8 @@ def report_palette_gaps() -> None:
     """
     surfaces = (("crate ground", CRATE), ("crate recess", RECESS),
                 ("panel", PANEL), ("panel raised", PANEL_HI))
-    text_surfaces = (("crate ground", CRATE),)
+    text_surfaces = (("crate ground", CRATE), ("crate recess", RECESS),
+                     ("panel", PANEL))
     gaps = []
 
     if min(contrast(GREEN, s) for _, s in surfaces) < 3.0:
@@ -199,9 +200,10 @@ def report_palette_gaps() -> None:
                 gaps.append((f"filed green {T.GREEN} on {name} {got:.2f}:1 < 3:1",
                              T.GREEN, 3.0, surfaces))
     for label, token in (("text dim", T.TEXT_DIM), ("text faint", T.TEXT_FAINT)):
-        got = contrast(rgb(token), CRATE)
+        name, s = min(text_surfaces, key=lambda pair: contrast(rgb(token), pair[1]))
+        got = contrast(rgb(token), s)
         if got < 4.5:
-            gaps.append((f"{label} {token} on crate ground {got:.2f}:1 < 4.5:1",
+            gaps.append((f"{label} {token} on {name} {got:.2f}:1 < 4.5:1",
                          token, 4.5, text_surfaces))
 
     if gaps:

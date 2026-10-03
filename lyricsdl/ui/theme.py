@@ -43,7 +43,7 @@ VOID_INK = "#6B6355"
 
 TEXT = "#EDE8DC"         # primary text on dark
 TEXT_DIM = "#A79E8C"     # secondary text on dark (≥4.5:1)
-TEXT_FAINT = "#867E6E"   # tertiary text on dark
+TEXT_FAINT = "#989081"   # tertiary text on dark
 
 FOCUS = "#F0C46A"
 

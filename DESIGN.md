@@ -24,7 +24,7 @@ colors:
   absent-grey-ink: "#6B6355"
   text: "#EDE8DC"
   text-dim: "#A79E8C"
-  text-faint: "#867E6E"
+  text-faint: "#989081"
   focus: "#F0C46A"
 typography:
   display:
@@ -203,7 +203,7 @@ board, one for kraft.
 - **Edge** (#3A3835): the hairline rule on dark. 1px, never thicker.
 - **Kraft** (#E8E2D2) and **Kraft Shade** (#D9D1BC): the stock. Kraft is the selected/pulled-forward state; Kraft Shade is an unselected divider — the same board, marginally in shade. **Kraft Edge** (#BCB29A) is the printed hairline under a divider.
 - **Ink** (#1C1A17), **Ink Soft** (#5A5344), **Ink Faint** (#8B8474): text on kraft. Three steps only.
-- **Text** (#EDE8DC), **Text Dim** (#A79E8C), **Text Faint** (#867E6E): text on dark. Both Text Dim and Text Faint clear 4.5:1 on Crate Ground; Text Faint is reserved for metadata that is never load-bearing.
+- **Text** (#EDE8DC), **Text Dim** (#A79E8C), **Text Faint** (#989081): text on dark. All three clear 4.5:1 on the three surfaces text actually rests on — Crate Ground, Crate Recess and Panel (13.44 / 6.19 / 5.20 on the ground). Text Faint is reserved for metadata that is never load-bearing, and it was lifted from #867E6E, which measured 4.09:1 on the ground and 3.57:1 on Panel. One caveat, measured rather than assumed: on the *hover* step, Panel Raised, Text Faint reads 4.04:1. Closing that would need #A0998B, which is within [-7,-5,-1] of Text Dim — a third step below Dim cannot be AA on every surface without becoming Dim, so the ramp holds three steps and the hover shortfall is accepted.
 - **Focus** (#F0C46A): the keyboard focus ring on the progress rail.
 
 ### Named Rules
