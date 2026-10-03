@@ -90,6 +90,12 @@ def main() -> None:
         assert gui["tracks_listed"] >= 1, gui
         assert gui["result_rows"] >= 1, gui
 
+        # The window icon comes from art bundled with --add-data. build_exe.py
+        # would still produce a working exe without it, so assert it explicitly.
+        assert gui.get("window_icon") is True, (
+            "the window icon did not load inside the frozen build — the bundled "
+            "mark PNG is missing from the bundle")
+
         # The lookup itself needs the network, so it is reported but not
         # asserted: a release must still verify offline.
         if report["lookup"]["found"]:

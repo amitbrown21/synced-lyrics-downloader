@@ -72,6 +72,10 @@ def _gui_check() -> dict:
             app.root.update()
         result["result_rows"] = len(app.result_pane.list.rows)
 
+        # The window icon is loaded from bundled art. It fails silently by
+        # design, so without reporting it a build could ship iconless.
+        result["window_icon"] = bool(getattr(app, "_icon", None))
+
         result["ok"] = (result["artists_listed"] == 2 and result["albums_listed"] >= 1
                         and result["tracks_listed"] >= 1 and result["result_rows"] >= 1)
         app.root.destroy()
